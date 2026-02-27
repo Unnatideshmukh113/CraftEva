@@ -1,0 +1,129 @@
+.orders-page {
+  padding: 3rem 0;
+  background-color: var(--color-bg);
+}
+
+.orders-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.orders-container h2 {
+  color: var(--color-primary-dark);
+  margin-bottom: 2.5rem;
+  font-size: 2.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 2rem;
+  border: 1px solid rgba(204, 51, 51, 0.2);
+}
+
+.no-orders {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-light);
+  font-size: 1.2rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.order-card {
+  background: var(--color-surface);
+  border: 1px solid rgba(141, 110, 99, 0.1);
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.order-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(141, 110, 99, 0.1);
+}
+
+.order-header h3 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+}
+
+.status {
+  padding: 0.4rem 1rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status.placed,
+.status.pending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status.completed,
+.status.shipped {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status.cancelled {
+  background-color: #ffebee;
+  color: #c62828;
+}
+
+.order-details p {
+  margin: 0.8rem 0;
+  color: var(--color-text-light);
+  font-size: 1rem;
+}
+
+.order-details strong {
+  color: var(--color-text);
+  font-weight: 600;
+  margin-right: 0.5rem;
+}
+
+.cancel-order-btn {
+  margin-top: 1.5rem;
+  background-color: transparent;
+  color: #c62828;
+  border: 1px solid #c62828;
+  padding: 0.6rem 1.5rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.cancel-order-btn:hover {
+  background-color: #c62828;
+  color: white;
+}

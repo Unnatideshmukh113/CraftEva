@@ -1,0 +1,42 @@
+.wishlist-page {
+    padding: 2rem;
+    background-color: #f8f5f2;
+    /* Matching theme background */
+    min-height: 80vh;
+}
+
+.wishlist-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.wishlist-container h2 {
+    color: #5d4037;
+    /* Theme primary color */
+    margin-bottom: 2rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.no-items {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #8d6e63;
+    margin-top: 3rem;
+}
+
+.wishlist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+@media (max-width: 768px) {
+    .wishlist-page {
+        padding: 1rem;
+    }
+
+    .wishlist-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+}

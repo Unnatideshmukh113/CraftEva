@@ -1,0 +1,74 @@
+.home {
+  padding: 3rem 0;
+  background-color: var(--color-bg);
+}
+
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.home h1 {
+  text-align: center;
+  color: var(--color-primary-dark);
+  margin-bottom: 0.5rem;
+  font-size: 3rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--color-text-light);
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+  font-weight: 300;
+  letter-spacing: 0.5px;
+}
+
+.category-filter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.category-filter label {
+  font-weight: 500;
+  color: var(--color-primary-dark);
+}
+
+.category-select {
+  padding: 0.8rem 1.5rem;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  font-size: 1rem;
+  background: var(--color-surface);
+  cursor: pointer;
+  min-width: 250px;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  transition: all 0.3s;
+  box-shadow: var(--shadow-sm);
+  outline: none;
+}
+
+.category-select:hover,
+.category-select:focus {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-md);
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  margin-bottom: 2rem;
+  text-align: center;
+  border: 1px solid rgba(204, 51, 51, 0.2);
+}

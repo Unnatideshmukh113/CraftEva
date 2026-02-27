@@ -1,0 +1,122 @@
+.invoice-container {
+    background: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    width: 100%;
+    /* Fully fluid */
+    margin: 0 auto;
+    font-family: 'Courier New', Courier, monospace;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    /* Allow wrapping on small screens */
+    gap: 10px;
+}
+
+.invoice-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.invoice-status {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    border: 1px solid #c3e6cb;
+    white-space: nowrap;
+}
+
+.invoice-details {
+    margin-bottom: 20px;
+    color: #555;
+    word-break: break-all;
+    /* Ensure very long IDs don't overflow */
+}
+
+.invoice-details p {
+    margin: 5px 0;
+}
+
+/* Responsive Table Wrapper */
+.invoice-items-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
+    margin-bottom: 20px;
+    border: 1px solid #eee;
+    /* Visual cue for the container */
+}
+
+.invoice-items {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 100%;
+    /* Allow it to shrink, only scroll if absolutely necessary */
+}
+
+.invoice-items th,
+.invoice-items td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.invoice-items th {
+    background-color: #f8f9fa;
+    font-weight: bold;
+}
+
+.total-label {
+    text-align: right;
+    font-weight: bold;
+}
+
+.total-amount {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #2c3e50;
+}
+
+.invoice-footer {
+    text-align: center;
+    margin-top: 20px;
+    color: #888;
+    font-size: 0.9em;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 576px) {
+    .invoice-container {
+        padding: 15px;
+    }
+
+    .invoice-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .invoice-status {
+        align-self: flex-start;
+    }
+
+    .invoice-items th,
+    .invoice-items td {
+        padding: 8px 5px;
+        font-size: 0.9rem;
+    }
+}

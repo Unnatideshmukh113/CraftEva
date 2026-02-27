@@ -1,0 +1,105 @@
+.cart-page {
+  padding: 3rem 0;
+  background-color: var(--color-bg);
+}
+
+.cart-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.cart-container h2 {
+  color: var(--color-primary-dark);
+  margin-bottom: 2.5rem;
+  font-size: 2.5rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.cart-items {
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  border: 1px solid rgba(141, 110, 99, 0.1);
+}
+
+.empty-cart {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--color-text-light);
+  font-size: 1.2rem;
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.continue-shopping-btn {
+  display: block;
+  margin: 2rem auto;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.8rem 2.5rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.continue-shopping-btn:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.cart-summary {
+  background: var(--color-surface);
+  padding: 2rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(141, 110, 99, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.total {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: right;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+}
+
+.total strong {
+  color: var(--color-accent);
+}
+
+.checkout-btn {
+  width: 100%;
+  max-width: 300px;
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.checkout-btn:hover {
+  background-color: #d84315;
+  /* Darker accent */
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
