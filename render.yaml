@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: crafteva-backend
+    runtime: java
+    rootDir: crafteva-backend/springboot_backend_template
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/springboot_backend_template-0.0.1.jar
+    plan: free
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        sync: false
+      - key: SPRING_DATASOURCE_USERNAME
+        sync: false
+      - key: SPRING_DATASOURCE_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRATION
+        value: "86400000"
+      - key: SERVER_PORT
+        value: "8080"
+      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
+        value: update
+      - key: SPRING_JPA_SHOW_SQL
+        value: "false"
