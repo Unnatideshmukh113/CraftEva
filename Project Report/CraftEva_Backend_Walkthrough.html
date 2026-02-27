@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CraftEva Backend Walkthrough</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Kalam', cursive;
+            background: #f8f4ec;
+            background-image: linear-gradient(rgba(0, 0, 0, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .04) 1px, transparent 1px);
+            background-size: 30px 30px;
+            padding: 20px
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.9rem;
+            color: #1a1a2e;
+            margin-bottom: 6px
+        }
+
+        .sub {
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            color: #555;
+            margin-bottom: 18px;
+            font-size: .8rem
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px
+        }
+
+        .tab-btn {
+            font-family: 'Kalam', cursive;
+            font-size: .88rem;
+            padding: 6px 16px;
+            border: 2.5px solid #1a1a2e;
+            border-radius: 10px;
+            background: #fffef9;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #1a1a2e
+        }
+
+        .tab-btn.active {
+            background: #1a1a2e;
+            color: #fff
+        }
+
+        .tab-pane {
+            display: none;
+            max-width: 1100px;
+            margin: 0 auto
+        }
+
+        .tab-pane.active {
+            display: block
+        }
+
+        .card {
+            background: #fffef9;
+            border: 2.5px solid #1a1a2e;
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 #1a1a2e;
+            padding: 16px;
+            margin-bottom: 16px
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px dashed #1a1a2e
+        }
+
+        .card h3 {
+            font-size: .95rem;
+            margin: 10px 0 6px;
+            color: #065f46
+        }
+
+        pre {
+            background: #1a1a2e;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .72rem;
+            overflow-x: auto;
+            margin: 8px 0;
+            line-height: 1.6
+        }
+
+        .line-exp {
+            font-size: .8rem;
+            margin-bottom: 3px;
+            padding: 3px 6px;
+            border-left: 3px solid #065f46;
+            background: #f0fff8
+        }
+
+        .line-num {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .72rem;
+            color: #065f46;
+            font-weight: 700;
+            margin-right: 5px
+        }
+
+        .qa-wrap {
+            margin-top: 10px
+        }
+
+        .qa {
+            margin-bottom: 9px;
+            border: 2px solid #1a1a2e;
+            border-radius: 8px;
+            overflow: hidden
+        }
+
+        .q {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 9px 12px;
+            font-size: .85rem;
+            cursor: pointer;
+            user-select: none
+        }
+
+        .q::before {
+            content: 'Q: '
+        }
+
+        .a {
+            background: #fffef9;
+            padding: 10px 12px;
+            font-size: .82rem;
+            display: none;
+            line-height: 1.6
+        }
+
+        .a.open {
+            display: block
+        }
+
+        .a::before {
+            content: 'A: ';
+            font-weight: 700;
+            color: #065f46
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: .68rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            border: 1.5px solid;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 2px
+        }
+
+        .t-sec {
+            background: #fce7f3;
+            color: #9d174d;
+            border-color: #f9a8d4
+        }
+
+        .t-jpa {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d
+        }
+
+        .t-svc {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #6ee7b7
+        }
+
+        .t-ctrl {
+            background: #dbeafe;
+            color: #1e3a8a;
+            border-color: #93c5fd
+        }
+
+        .mono {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .78rem;
+            background: #f0f0f0;
+            padding: 1px 4px;
+            border-radius: 3px
+        }
+
+        .flow-steps {
+            counter-reset: step
+        }
+
+        .flow-step {
+            counter-increment: step;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 6px;
+            align-items: flex-start
+        }
+
+        .flow-step::before {
+            content: counter(step);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #065f46;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        .flow-step p {
+            font-size: .82rem;
+            line-height: 1.5;
+            flex: 1
+        }
+
+        .tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .78rem;
+            margin: 8px 0
+        }
+
+        .tbl th {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 6px 8px;
+            text-align: left
+        }
+
+        .tbl td {
+            border: 1px solid #ccc;
+            padding: 5px 8px
+        }
+
+        .tbl tr:nth-child(even) td {
+            background: #f5f5f0
+        }
+    </style>
+</head>
+
+<body>
+    <h1>☕ CraftEva — Backend Code Walkthrough</h1>
+    <p class="sub">Spring Boot 3.5.7 · Java 21 · Spring Security · JPA · MySQL · iTextPDF | Every class explained</p>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="show('security',this)">Security Chain</button>
+        <button class="tab-btn" onclick="show('jwt',this)">JwtUtil</button>
+        <button class="tab-btn" onclick="show('filter',this)">JwtFilter</button>
+        <button class="tab-btn" onclick="show('auth',this)">Auth Flow</button>
+        <button class="tab-btn" onclick="show('order',this)">Order Flow</button>
+        <button class="tab-btn" onclick="show('entities',this)">Entities & JPA</button>
+        <button class="tab-btn" onclick="show('admin',this)">Admin & Invoice</button>
+        <button class="tab-btn" onclick="show('qa',this)">🎤 All Q&amp;A</button>
+    </div>
+
+    <!-- ========== SECURITY CHAIN ========== -->
+    <div id="security" class="tab-pane active">
+        <div class="card">
+            <h2>SecurityConfig.java — The Authorization Rules <span class="tag t-sec">Security</span></h2>
+            <pre>@Configuration @EnableWebSecurity @EnableMethodSecurity
+public class SecurityConfig {
+
+  // ① CSRF disabled — safe because we use JWT (stateless HTTP), not cookies
+  .csrf(AbstractHttpConfigurer::disable)
+
+  // ② CORS — allow React dev server origins
+  .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+  // corsConfigurationSource():
+  //   allowedOrigins: ["http://localhost:5173", "http://localhost:3000"]
+  //   allowedMethods: ["GET","POST","PUT","DELETE","OPTIONS"]
+  //   allowCredentials: true
+
+  // ③ ROUTE RULES (evaluated top to bottom — first match wins)
+  .authorizeHttpRequests(auth -> auth
+    .requestMatchers("/api/auth/**",       // ← NO TOKEN needed
+                     "/api/products/**",   // ← public product browsing
+                     "/swagger-ui/**",
+                     "/v3/api-docs/**").permitAll()
+    .requestMatchers("/api/admin/**").hasRole("ADMIN")
+    .requestMatchers("/api/seller/**").hasAnyRole("SELLER","ADMIN")
+    .requestMatchers("/api/buyer/**").hasAnyRole("BUYER","ADMIN")
+    .anyRequest().authenticated()          // everything else needs auth
+  )
+
+  // ④ Stateless — no HttpSession created (perfect for JWT)
+  .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+  // ⑤ Insert JwtFilter BEFORE Spring's default UsernamePasswordAuthenticationFilter
+  .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+  // ⑥ BCrypt password encoder (injected into DaoAuthenticationProvider)
+  @Bean public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
+}</pre>
+            <div class="line-exp"><span class="line-num">@EnableMethodSecurity</span>Enables @PreAuthorize annotations
+                on controller methods. Without this, @PreAuthorize is silently ignored.</div>
+            <div class="line-exp"><span class="line-num">STATELESS</span>Spring creates no HttpSession — every request
+                must carry its own token. No server memory used for sessions.</div>
+            <div class="line-exp"><span class="line-num">addFilterBefore</span>JwtFilter runs BEFORE the default auth
+                filter. It sets the SecurityContext so later filters and @PreAuthorize can read the user's role.</div>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why is CSRF disabled?</div>
+                    <div class="a">CSRF (Cross-Site Request Forgery) attacks exploit session cookies — a malicious site
+                        tricks the browser into sending a cookie it shouldn't. Since CraftEva uses JWT in the
+                        Authorization header (not cookies), there's no cookie for CSRF to exploit. JWT must be
+                        explicitly set in JS code, which a cross-origin malicious script cannot read (due to CORS +
+                        same-origin policy). So CSRF protection is unnecessary and disabling it simplifies the setup.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is CORS and why is it needed?</div>
+                    <div class="a">CORS (Cross-Origin Resource Sharing) is a browser security policy that blocks JS from
+                        making HTTP requests to a different origin. React (localhost:5173) calling Spring Boot
+                        (localhost:8080) is a cross-origin request. Spring Boot must respond with
+                        Access-Control-Allow-Origin: http://localhost:5173. Without this header, the browser blocks the
+                        response — the server processes the request but the frontend never sees the data.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does hasRole('ADMIN') check?</div>
+                    <div class="a">hasRole('ADMIN') checks if the SecurityContextHolder has an authority matching
+                        'ROLE_ADMIN'. Note the automatic ROLE_ prefix — Spring Security adds it. In
+                        JwtAuthenticationFilter, we set new SimpleGrantedAuthority("ROLE_" + role) — so ROLE_ADMIN.
+                        hasRole("ADMIN") internally checks for "ROLE_ADMIN". hasAnyRole("SELLER","ADMIN") checks for
+                        ROLE_SELLER or ROLE_ADMIN.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is DaoAuthenticationProvider?</div>
+                    <div class="a">DaoAuthenticationProvider is Spring's default AuthenticationProvider that loads user
+                        details from a DAO (Database Access Object) via UserDetailsService.loadUserByUsername(). It then
+                        verifies the password using the configured PasswordEncoder (BCrypt in our case). It's used
+                        during the login process — AuthenticationManager delegates to it.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== JWTUTIL ========== -->
+    <div id="jwt" class="tab-pane">
+        <div class="card">
+            <h2>JwtUtil.java — Token Generation &amp; Validation <span class="tag t-sec">Security</span></h2>
+            <pre>@Component
+public class JwtUtil {
+  @Value("${jwt.secret}")        private String secret;     // from application.properties
+  @Value("${jwt.expiration}")    private Long expiration;   // milliseconds (e.g. 86400000 = 24h)
+
+  // Create HMAC-SHA256 signing key from secret string
+  private SecretKey getSigningKey() {
+    return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+  }
+
+  // GENERATE token (called after successful login/register)
+  public String generateToken(UserDetails userDetails, String role) {
+    Map&lt;String, Object&gt; claims = new HashMap&lt;&gt;();
+    claims.put("role", role);  // ← Custom claim: "BUYER", "SELLER", or "ADMIN"
+    return Jwts.builder()
+        .claims(claims)               // Custom claims (role)
+        .subject(userDetails.getUsername())  // = user's email (the principal)
+        .issuedAt(new Date())
+        .expiration(new Date(System.currentTimeMillis() + expiration))
+        .signWith(getSigningKey())    // HMAC-SHA256 digital signature
+        .compact();                   // Produces: Header.Payload.Signature string
+  }
+
+  // VALIDATE token (called by JwtFilter on every protected request)
+  public Boolean validateToken(String token, UserDetails userDetails) {
+    final String username = extractUsername(token);  // From subject claim
+    return (username.equals(userDetails.getUsername()) &amp;&amp; !isTokenExpired(token));
+    // ↑ Checks: 1) token belongs to this user, 2) not expired
+  }
+
+  // Extract role claim (used by JwtFilter to set authority)
+  public String getRoleFromToken(String token) {
+    return extractClaim(token, claims -> (String) claims.get("role"));
+  }
+}</pre>
+            <h3>JWT Structure</h3>
+            <div class="line-exp"><span class="line-num">HEADER</span>{"alg":"HS256","typ":"JWT"} — Base64URL encoded →
+                eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9</div>
+            <div class="line-exp"><span
+                    class="line-num">PAYLOAD</span>{"sub":"user@email.com","role":"BUYER","iat":1700000000,"exp":1700086400}
+                — Base64URL encoded</div>
+            <div class="line-exp"><span class="line-num">SIGNATURE</span>HMAC-SHA256(base64(header)+"."+base64(payload),
+                secret) — tamper detection</div>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">How does JWT prevent tampering?</div>
+                    <div class="a">The signature is HMAC-SHA256(header + "." + payload, secretKey). If anyone modifies
+                        the payload (e.g., changes "role":"BUYER" to "role":"ADMIN"), the signature won't match when the
+                        server re-computes it. The server rejects the token. Only the server knows the secret key, so
+                        only the server can create valid tokens.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why is the role put in JWT claims rather than looking it up from
+                        DB?</div>
+                    <div class="a">Embedding role in the JWT means zero database lookups for authorization on every
+                        request. The filter extracts the role directly from the token claim. If we stored only the email
+                        in the token, we'd need a DB query on every request to get the role — much slower. The tradeoff
+                        is that role changes (e.g., promoting a user to ADMIN) don't take effect until the old token
+                        expires.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is @Value and where does jwt.secret come from?</div>
+                    <div class="a">@Value("${jwt.secret}") injects the value of the jwt.secret property from
+                        application.properties (or environment variables). The actual secret is never hardcoded — it's
+                        in application.properties (not committed to Git). In production, it's set as an environment
+                        variable (e.g., on Render: JWT_SECRET=longRandomString). Spring's @Value supports
+                        ${property.name} and #{SpEL expressions}.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is the difference between HS256 and RS256?</div>
+                    <div class="a">HS256 (HMAC-SHA256) uses one symmetric secret key — same key to sign and verify. Fast
+                        and simple but the secret must be shared between all services that verify tokens. RS256 uses
+                        asymmetric key pair (private key signs, public key verifies) — better for microservices where
+                        verification servers should never have the signing key. CraftEva uses HS256 (monolith, single
+                        server).</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What happens when a JWT expires?</div>
+                    <div class="a">isTokenExpired() compares extractExpiration(token) (the exp claim) against new Date()
+                        (now). If expired, validateToken() returns false. JwtAuthenticationFilter then does NOT set the
+                        SecurityContextHolder. Spring Security sees an unauthenticated request to a protected endpoint
+                        and returns 401 Unauthorized. The frontend Axios response interceptor catches 401 and redirects
+                        to /login.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== JWT FILTER ========== -->
+    <div id="filter" class="tab-pane">
+        <div class="card">
+            <h2>JwtAuthenticationFilter.java — Request Interceptor <span class="tag t-sec">Security</span></h2>
+            <pre>@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+  // OncePerRequestFilter guarantees this runs EXACTLY ONCE per HTTP request
+  // (important — without it, forwarded requests could run the filter multiple times)
+
+  @Override
+  protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
+                                  FilterChain filterChain) {
+
+    // STEP 1: Read Authorization header
+    final String authHeader = request.getHeader("Authorization");
+
+    // STEP 2: If no header or not "Bearer " prefix → skip (pass to next filter)
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      filterChain.doFilter(request, response);  // This allows permitAll() routes to work
+      return;
+    }
+
+    // STEP 3: Extract the JWT (remove "Bearer " prefix — 7 characters)
+    String jwt = authHeader.substring(7);
+
+    // STEP 4: Extract email (subject claim) from token
+    String userEmail = jwtUtil.extractUsername(jwt);
+
+    // STEP 5: Only set context if: email found AND not already authenticated
+    if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+
+      // STEP 6: Load full UserDetails from DB (validates email still exists)
+      UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+      // STEP 7: Validate token (signature + expiry check)
+      if (jwtUtil.validateToken(jwt, userDetails)) {
+
+        // STEP 8: Extract role from token claims
+        String role = jwtUtil.getRoleFromToken(jwt);
+
+        // STEP 9: Build Spring Security authentication object
+        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+          userDetails,
+          null,       // credentials null (password not needed after JWT validation)
+          Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
+        );
+        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+        // STEP 10: Set in SecurityContextHolder — now @PreAuthorize can read it
+        SecurityContextHolder.getContext().setAuthentication(authToken);
+      }
+    }
+
+    // STEP 11: Continue filter chain regardless (let Spring Security do final auth check)
+    filterChain.doFilter(request, response);
+  }
+}</pre>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why extend OncePerRequestFilter instead of Filter?</div>
+                    <div class="a">OncePerRequestFilter guarantees the filter runs exactly once per HTTP request. A
+                        plain javax.servlet.Filter could run multiple times if the request is dispatched internally
+                        (e.g., error handling, forwards). OncePerRequestFilter tracks dispatches with a request
+                        attribute to prevent duplicate execution — critical for auth logic that must run exactly once.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why call loadUserByUsername(email) if we already trust the JWT?
+                    </div>
+                    <div class="a">The JWT only tells us the email and role at the time of token generation. Calling
+                        loadUserByUsername() serves two purposes: 1) Confirms the user still exists in the database
+                        (account not deleted). 2) Provides the full UserDetails object needed by Spring Security's auth
+                        framework. validateToken() also compares the JWT's subject against userDetails.getUsername() for
+                        an extra safety check.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is SecurityContextHolder?</div>
+                    <div class="a">SecurityContextHolder is the central store for the currently authenticated user in
+                        Spring Security. It stores an Authentication object (holding principal + authorities) in a
+                        ThreadLocal — so each request thread has its own auth context. @PreAuthorize and hasRole() read
+                        from this holder. Setting it in the filter is what "authenticates" the request for the rest of
+                        the processing chain.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What happens if the filter doesn't call filterChain.doFilter()?
+                    </div>
+                    <div class="a">If filterChain.doFilter(request, response) is not called, the request processing
+                        stops — no response is sent, the connection hangs, and the browser times out. It's essential to
+                        always call it (unless we've already written a response, e.g., setStatus(401) and returning).
+                        The filter pattern requires passing control to the next filter or the servlet.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== AUTH FLOW ========== -->
+    <div id="auth" class="tab-pane">
+        <div class="card">
+            <h2>AuthController + UserServiceImpl — Login &amp; Register <span class="tag t-ctrl">Controller</span><span
+                    class="tag t-svc">Service</span></h2>
+            <pre>// AuthController.java
+@RestController @RequestMapping("/api/auth") @CrossOrigin
+public class AuthController {
+  @PostMapping("/register")
+  public AuthResponse register(@Valid @RequestBody RegisterRequest req) { ... }
+  //                           ↑ @Valid triggers Bean Validation on RegisterRequest
+  //                           ↑ @RequestBody deserializes JSON body to Java object
+
+  @PostMapping("/login")
+  public AuthResponse login(@Valid @RequestBody LoginRequest req) { ... }
+}
+
+// UserServiceImpl.java
+@Service @Transactional
+public class UserServiceImpl implements UserService {
+
+  // REGISTER
+  public AuthResponse register(RegisterRequest req) {
+    // 1. Duplicate email check
+    if (userRepository.existsByEmail(req.getEmail()))
+      throw new RuntimeException("Email already registered");
+    // 2. Create user entity
+    User user = new User();
+    user.setName(req.getName()); user.setEmail(req.getEmail());
+    user.setPassword(passwordEncoder.encode(req.getPassword())); // BCrypt hash
+    user.setRole(req.getRole()); // BUYER or SELLER (from registration form)
+    // 3. Save to DB
+    User saved = userRepository.save(user);
+    // 4. Generate JWT immediately (so user is logged in after register)
+    String token = jwtUtil.generateToken(userDetailsService.loadUserByUsername(saved.getEmail()),
+                                          saved.getRole().name());
+    return new AuthResponse(token, saved.getEmail(), saved.getRole().name(), saved.getUserId());
+  }
+
+  // LOGIN
+  public AuthResponse login(LoginRequest req) {
+    // 1. Find user by email
+    User user = userRepository.findByEmail(req.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email"));
+    // 2. BCrypt comparison
+    if (!passwordEncoder.matches(req.getPassword(), user.getPassword()))
+      throw new RuntimeException("Invalid password");
+    // 3. Generate JWT
+    String token = jwtUtil.generateToken(..., user.getRole().name());
+    return new AuthResponse(token, user.getEmail(), user.getRole().name(), user.getUserId());
+  }
+}</pre>
+            <div class="line-exp"><span class="line-num">@Valid</span>Triggers Jakarta Bean Validation annotations on
+                RegisterRequest/LoginRequest fields (@NotBlank, @Email etc.)</div>
+            <div class="line-exp"><span class="line-num">@Transactional</span>Wraps all public methods in a DB
+                transaction. If save() fails, nothing is written. Auto-applied by @Transactional on the class.</div>
+            <div class="line-exp"><span class="line-num">AuthResponse</span>DTO returned to frontend: {token, email,
+                role, userId} — frontend stores all 4 in sessionStorage</div>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is @RestController vs @Controller?</div>
+                    <div class="a">@RestController = @Controller + @ResponseBody. Every method return value is
+                        automatically serialized to JSON and written to the HTTP response body. With plain @Controller,
+                        you'd need @ResponseBody on every method, or return ModelAndView for server-side rendering.
+                        CraftEva is a REST API backend — @RestController is always used.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is a DTO (Data Transfer Object)?</div>
+                    <div class="a">A DTO is a plain POJO used to transfer data between layers. RegisterRequest,
+                        LoginRequest, AuthResponse, OrderDto are all DTOs. Key reasons: 1) Never expose entity directly
+                        — avoids accidental field exposure (password hash) and circular JSON references (Order → User →
+                        Orders...). 2) Decouples API contract from DB schema. 3) Can have different validation rules
+                        than the entity.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does @RequestBody do?</div>
+                    <div class="a">@RequestBody tells Spring to deserialize the incoming HTTP request body (JSON string)
+                        into the specified Java object using Jackson ObjectMapper. Jackson reads the JSON keys and maps
+                        them to Java field names (or @JsonProperty aliases). For the body to be parsed, Content-Type:
+                        application/json must be set — which the Axios instance does by default.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why throw RuntimeException instead of a proper HTTP exception?
+                    </div>
+                    <div class="a">Throwing RuntimeException maps to HTTP 500 by default — not ideal. The correct
+                        approach is to add a @ControllerAdvice GlobalExceptionHandler that catches specific exceptions
+                        and maps them to correct status codes (e.g., catch UserNotFoundException → 404,
+                        DuplicateEmailException → 409). This is a known improvement area in CraftEva that you can
+                        mention in the interview as a future enhancement.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ORDER FLOW ========== -->
+    <div id="order" class="tab-pane">
+        <div class="card">
+            <h2>OrderController + OrderServiceImpl — Order Lifecycle <span class="tag t-ctrl">Controller</span><span
+                    class="tag t-svc">Service</span></h2>
+            <pre>// OrderController.java
+@RestController @RequestMapping("/api/orders")
+public class OrderController {
+
+  @PostMapping("/add")
+  @PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")
+  public OrderDto place(@Valid @RequestBody OrderDto orderDto) {
+    return service.placeOrder(orderDto);
+  }
+
+  @GetMapping("/buyer/{buyerId}")
+  @PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")
+  public List&lt;Order&gt; getOrdersByBuyer(@PathVariable Long buyerId) {
+    return service.getOrdersByBuyer(buyerId);  // findByBuyer_UserId(buyerId)
+  }
+
+  @GetMapping("/history/{buyerId}")
+  @PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")
+  public List&lt;Order&gt; getOrderHistory(@PathVariable Long buyerId) {
+    return service.getOrderHistory(buyerId);   // findByBuyer_UserIdAndStatusNot(buyerId, PLACED)
+  }
+
+  @PutMapping("/cancel/{id}")
+  @PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")
+  public Order cancel(@PathVariable Long id) {
+    return service.cancelOrder(id);  // sets status=CANCELLED, saves
+  }
+
+  @GetMapping("/get")
+  @PreAuthorize("hasRole('ADMIN')")
+  public List&lt;Order&gt; all() { return service.getAllOrders(); }
+}
+
+// OrderServiceImpl.java — most important methods:
+@Service @Transactional
+public class OrderServiceImpl implements OrderService {
+
+  public OrderDto placeOrder(OrderDto dto) {
+    Long buyerId = dto.getBuyer().getUserId();
+    User buyer = userRepository.findById(buyerId)
+                 .orElseThrow(() -&gt; new RuntimeException("Buyer not found"));
+    Order order = new Order();
+    order.setOrderDate(LocalDate.now());
+    order.setStatus(OrderStatus.PLACED);      // Initial status
+    order.setTotalAmount(dto.getTotalAmount());
+    order.setBuyer(buyer);
+    Order saved = orderRepository.save(order); // INSERT INTO orders (...)
+    // Map back to OrderDto + BuyerDto for response
+    return mapToDto(saved, buyer);
+  }
+
+  public Order cancelOrder(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+                  .orElseThrow(() -&gt; new RuntimeException("Order not found"));
+    order.setStatus(OrderStatus.CANCELLED);
+    return orderRepository.save(order);       // UPDATE orders SET status='CANCELLED'
+  }
+
+  // JPA derived queries:
+  // findByBuyer_UserId(id)
+  //   → SELECT * FROM orders WHERE buyer_id = id
+  // findByBuyer_UserIdAndStatusNot(id, PLACED)
+  //   → SELECT * FROM orders WHERE buyer_id = id AND status != 'PLACED'
+}</pre>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does @PreAuthorize do and when does it run?</div>
+                    <div class="a">@PreAuthorize runs BEFORE the method is called. It evaluates the SpEL expression
+                        against the SecurityContextHolder. If it returns false (wrong role), Spring throws
+                        AccessDeniedException → 403 Forbidden. It requires @EnableMethodSecurity on SecurityConfig. This
+                        provides method-level security on top of URL-level rules in SecurityFilterChain.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What are @PathVariable and @RequestParam?</div>
+                    <div class="a">@PathVariable extracts a value from the URL path: /orders/cancel/{id} where {id} is
+                        the path variable. @RequestParam reads query string parameters: /orders?status=PLACED — status
+                        is a request param. @PathVariable is for resource identifiers (IDs). @RequestParam is for
+                        filtering/optional parameters. Both types are automatically converted to the declared Java type.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Explain JPA derived query method naming.</div>
+                    <div class="a">Spring Data JPA generates SQL from method names following a naming convention.
+                        findByBuyer_UserId(Long id) generates: SELECT * FROM orders WHERE buyer_id = ? (the underscore
+                        navigates across the association — buyer is the field, userId is the nested field).
+                        findByBuyer_UserIdAndStatusNot(id, status) generates: WHERE buyer_id = ? AND status != ?. No
+                        @Query annotation needed for these patterns.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is @Transactional and what does rollback mean?</div>
+                    <div class="a">@Transactional wraps the method in a database transaction. All DB operations in the
+                        method execute atomically — either all succeed (commit) or all fail (rollback). By default,
+                        Spring rolls back on RuntimeException (unchecked). If placeOrder() throws RuntimeException after
+                        the INSERT, the INSERT is rolled back — no partial data left in the database. Checked exceptions
+                        do NOT trigger rollback by default — use @Transactional(rollbackFor=Exception.class) for those.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is @Service and why use it?</div>
+                    <div class="a">@Service is a Spring stereotype annotation (specialization of @Component). It marks
+                        the class as a business logic layer component. Spring automatically detects it during component
+                        scanning and creates a Spring bean. Using @Service (vs @Component) also semantically
+                        communicates intent to other developers — this class contains business logic, not infrastructure
+                        or presentation code.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ENTITIES & JPA ========== -->
+    <div id="entities" class="tab-pane">
+        <div class="card">
+            <h2>Entity Classes — JPA Mapping <span class="tag t-jpa">JPA/Hibernate</span></h2>
+            <pre>// User.java — Single table for all roles
+@Entity @Table(name="users")
+public class User {
+  @Id @GeneratedValue(strategy=GenerationType.IDENTITY)
+  private Long userId;             // auto_increment PK
+  @Column(name="user_name", nullable=false) private String name;
+  @Column(name="user_email", nullable=false) private String email;
+  @Column(name="user_password", nullable=false) private String password; // BCrypt
+  @Column(name="mobile_no", nullable=false) private String mobile;
+  @Column(name="user_address", nullable=false) private String address;
+  @Enumerated(EnumType.STRING)
+  private Role role;               // SELLER | BUYER | ADMIN stored as strings
+}
+
+// Product.java
+@Entity @Table(name="products")
+@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+public class Product {
+  @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long productId;
+  @Enumerated(EnumType.STRING) private Category category; // HANDMADE_JEWELRY etc.
+  @ManyToOne
+  @JoinColumn(name="seller_id")    // FK column in products table
+  private User seller;             // Many products → One seller
+}
+
+// Order.java
+@Entity @Table(name="orders")
+public class Order {
+  @Enumerated(EnumType.STRING) private OrderStatus status; // PLACED|CANCELLED|COMPLETED|DELIVERED
+  @ManyToOne @JoinColumn(name="buyer_id") private User buyer;
+  @OneToMany(mappedBy="order", cascade=CascadeType.ALL, fetch=FetchType.LAZY)
+  @JsonIgnoreProperties({"order"})       // ← prevents circular JSON serialization
+  private List&lt;OrderItem&gt; orderItems;
+}
+
+// Payment.java — 1:1 with Order
+@Entity @Table(name="payment")
+public class Payment {
+  @Column(name="transaction_id", unique=true) private String transactionId;
+  @OneToOne @JoinColumn(name="order_id") private Order order;  // 1:1
+  @ManyToOne @JoinColumn(name="seller_id") private User seller; // seller gets paid
+}</pre>
+
+            <h3>JPA Associations at a Glance</h3>
+            <table class="tbl">
+                <tr>
+                    <th>Annotation</th>
+                    <th>Meaning</th>
+                    <th>Example in CraftEva</th>
+                </tr>
+                <tr>
+                    <td>@ManyToOne</td>
+                    <td>Many rows → one parent</td>
+                    <td>Many products → one seller</td>
+                </tr>
+                <tr>
+                    <td>@OneToMany</td>
+                    <td>One row → many children</td>
+                    <td>One order → many orderItems</td>
+                </tr>
+                <tr>
+                    <td>@OneToOne</td>
+                    <td>One row → exactly one</td>
+                    <td>One order → one payment</td>
+                </tr>
+                <tr>
+                    <td>@JoinColumn</td>
+                    <td>Specifies FK column name</td>
+                    <td>@JoinColumn(name="buyer_id")</td>
+                </tr>
+                <tr>
+                    <td>cascade=ALL</td>
+                    <td>Propagate all ops to children</td>
+                    <td>Delete order → deletes its orderItems</td>
+                </tr>
+                <tr>
+                    <td>fetch=LAZY</td>
+                    <td>Don't load until accessed</td>
+                    <td>orderItems not loaded until .getOrderItems() called</td>
+                </tr>
+            </table>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does @Enumerated(EnumType.STRING) do?</div>
+                    <div class="a">Without this annotation, Hibernate stores enums as integers (0=SELLER, 1=BUYER,
+                        2=ADMIN) — EnumType.ORDINAL. If the enum order changes, all old DB values become wrong.
+                        EnumType.STRING stores "SELLER", "BUYER", "ADMIN" as strings — readable and safe to reorder the
+                        enum. Always use STRING unless storage is extremely tight.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is the N+1 problem and how does LAZY loading relate to it?
+                    </div>
+                    <div class="a">N+1: If you fetch 10 orders and each order EAGER-loads its orderItems, Hibernate
+                        makes 1 query for orders + 10 queries for items = 11 queries. LAZY loading defers item loading
+                        until .getOrderItems() is called. To avoid N+1 with LAZY, use @Query with JOIN FETCH or
+                        EntityGraph to load everything in one query when needed. CraftEva uses LAZY for orderItems —
+                        safe as long as you don't iterate them outside a transaction.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is @JsonIgnoreProperties and why is it needed?</div>
+                    <div class="a">When Jackson serializes an Order to JSON, it follows Order.orderItems → each
+                        OrderItem.order → back to Order — causing infinite recursion and StackOverflowError.
+                        @JsonIgnoreProperties({"order"}) on the orderItems field tells Jackson to skip the "order" field
+                        of OrderItem during serialization, breaking the cycle.
+                        @JsonIgnoreProperties({"hibernateLazyInitializer","handler"}) prevents Jackson from serializing
+                        Hibernate proxy internal fields on LAZY-loaded objects.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is cascade=CascadeType.ALL?</div>
+                    <div class="a">CascadeType.ALL propagates all JPA operations (PERSIST, MERGE, REMOVE, REFRESH,
+                        DETACH) from parent to children. With cascade=ALL on Order.orderItems: saving an order also
+                        saves its new items, deleting an order also deletes all its orderItems. Without cascade, you'd
+                        have to manually persist/delete each child entity separately.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is Lombok and what annotations does CraftEva use?</div>
+                    <div class="a">Lombok is a code generation library that removes boilerplate. @Getter generates
+                        getters for all fields, @Setter generates setters, @AllArgsConstructor generates a constructor
+                        with all fields, @NoArgsConstructor generates a no-arg constructor (required by JPA and
+                        Jackson), @RequiredArgsConstructor generates a constructor for final fields (used for dependency
+                        injection in services). Lombok processes annotations at compile time — zero runtime overhead.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ADMIN & INVOICE ========== -->
+    <div id="admin" class="tab-pane">
+        <div class="card">
+            <h2>AdminController — Dashboard &amp; Management <span class="tag t-ctrl">Controller</span></h2>
+            <pre>@RestController @RequestMapping("/api/admin")
+@RequiredArgsConstructor                          // ← Lombok constructor injection
+public class AdminController {
+  // Note: Admin controller directly uses Repositories (no service layer)
+  // This is intentional for simple CRUD — no business logic needed
+  private final UserRepository userRepository;
+  private final ProductRepository productRepository;
+  private final OrderRepository orderRepository;
+  private final PaymentRepository paymentRepository;
+
+  @GetMapping("/dashboard")
+  @PreAuthorize("hasRole('ADMIN')")
+  public AdminDashboardDto getDashboardStats() {
+    long totalUsers    = userRepository.count();       // SELECT COUNT(*) FROM users
+    long totalProducts = productRepository.count();
+    long totalOrders   = orderRepository.count();
+    long totalPayments = paymentRepository.count();
+    double totalRevenue = paymentRepository.findAll().stream()
+                           .mapToDouble(Payment::getAmount).sum();
+    // ↑ Note: Stream over all payments in memory — works for small data
+    //   Better: @Query("SELECT SUM(p.amount) FROM Payment p") in repo
+    return new AdminDashboardDto(totalUsers, totalProducts, totalOrders, totalPayments, totalRevenue);
+  }
+
+  @DeleteMapping("/users/{userId}")
+  @PreAuthorize("hasRole('ADMIN')")
+  public String deleteUser(@PathVariable Long userId) {
+    userRepository.deleteById(userId);
+    return "User deleted successfully";
+  }
+  // Similar patterns for products, orders, payments...
+}</pre>
+
+            <h2 style="margin-top:16px">InvoiceController — PDF Generation <span class="tag t-ctrl">Controller</span>
+            </h2>
+            <pre>@RestController @RequestMapping("/api/invoices")
+public class InvoiceController {
+  @GetMapping("/order/{orderId}")
+  @PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")
+  public ResponseEntity&lt;byte[]&gt; generateInvoice(@PathVariable Long orderId) {
+    Order order = orderRepository.findById(orderId)
+                  .orElseThrow(() -&gt; new RuntimeException("Order not found"));
+    ByteArrayOutputStream invoice = invoiceService.generateInvoice(order);
+    // Build ResponseEntity with correct Content-Type headers
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDispositionFormData("attachment", "invoice_" + orderId + ".pdf");
+    // Return byte array — browser triggers file download automatically
+    return ResponseEntity.ok().headers(headers).body(invoice.toByteArray());
+  }
+}</pre>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why does AdminController use repositories directly instead of
+                        services?</div>
+                    <div class="a">For simple read/delete operations with no business logic (just fetch and return, or
+                        just delete), adding a service layer is unnecessary abstraction — it would just delegate the
+                        call with no transformation. Services are valuable when there's business logic (validation,
+                        multiple DB operations, transformations). Many projects pragmatically use repositories directly
+                        in controllers for admin CRUD. In production you'd typically still add a service for
+                        testability.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does ResponseEntity&lt;byte[]&gt; return?</div>
+                    <div class="a">ResponseEntity gives full control over the HTTP response — status code, headers, and
+                        body. byte[] body carries the raw PDF bytes. The Content-Type: application/pdf header tells the
+                        browser this is a PDF. Content-Disposition: attachment; filename=... tells the browser to
+                        download it as a file instead of displaying it. This is how file downloads work in REST APIs.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is iTextPDF and how is it used?</div>
+                    <div class="a">iTextPDF is a Java library for programmatic PDF generation. InvoiceServiceImpl
+                        creates a PdfDocument + PdfWriter writing to ByteArrayOutputStream (in-memory, no temp file). It
+                        builds tables using iText's Table API, adds order details (buyer name, items, prices, total),
+                        and closes the document. The resulting bytes are returned and sent as the HTTP response body.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is @RequiredArgsConstructor and how does it enable
+                        dependency injection?</div>
+                    <div class="a">@RequiredArgsConstructor (Lombok) generates a constructor with parameters for all
+                        final fields. Spring's DI sees this constructor and injects all required beans automatically.
+                        This is constructor injection — the recommended approach over field injection (@Autowired)
+                        because it makes dependencies explicit, enables immutability (final), and makes testing easier
+                        (can pass mocks directly).</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ALL Q&A ========== -->
+    <div id="qa" class="tab-pane">
+        <div class="card">
+            <h2>🎤 All Possible Backend Interview Questions</h2>
+
+            <h3 style="margin-bottom:8px">Spring Boot Fundamentals</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is Spring Boot? How is it different from Spring?</div>
+                <div class="a">Spring is a framework. Spring Boot is opinionated auto-configuration on top of Spring —
+                    it provides starter dependencies (spring-boot-starter-web, spring-boot-starter-security) that
+                    include all required transitive dependencies, auto-configuration that detects what's on the
+                    classpath and configures it (e.g., detects MySQL driver + configures DataSource), and an embedded
+                    Tomcat server so no WAR deployment is needed.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What does @SpringBootApplication do?</div>
+                <div class="a">@SpringBootApplication is a combination of three annotations: @Configuration (this class
+                    defines beans), @EnableAutoConfiguration (enable Spring Boot's auto-config), and @ComponentScan
+                    (scan this package and sub-packages for @Component, @Service, @Repository, @Controller). It
+                    bootstraps the entire Spring context.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is Dependency Injection and how does Spring implement it?</div>
+                <div class="a">DI is a design pattern where objects receive their dependencies from an external source
+                    (the IoC container) instead of creating them. Spring implements DI via its ApplicationContext — it
+                    creates singleton beans for every @Component/@Service/@Repository and injects them wherever needed
+                    (via constructor, setter, or field injection). Constructor injection (used in CraftEva via
+                    @RequiredArgsConstructor) is preferred — dependencies are explicit and immutable.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the difference between @Component, @Service, @Repository,
+                    @Controller?</div>
+                <div class="a">All four are specializations of @Component and trigger Spring bean creation. @Service:
+                    business logic layer (no extra behavior). @Repository: data access layer — adds exception
+                    translation (converts DB exceptions to Spring's DataAccessException hierarchy). @Controller:
+                    presentation layer (returns views). @RestController: REST API (adds @ResponseBody to all methods).
+                    Using the specific annotation communicates intent to developers and enables future AOP interceptors
+                    targeted at specific layers.</div>
+            </div>
+
+            <h3 style="margin:12px 0 8px">JPA & Database</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the difference between JPA, Hibernate, and Spring Data JPA?
+                </div>
+                <div class="a">JPA (Jakarta Persistence API) is the specification — an interface. Hibernate is the most
+                    popular implementation of JPA — it does the actual ORM work. Spring Data JPA is a layer on top of
+                    JPA that provides JpaRepository with 30+ ready methods (save, findAll, findById, deleteById,
+                    count...) and auto-generates queries from method names. CraftEva uses Spring Data JPA → delegates to
+                    Hibernate → uses MySQL JDBC driver.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is CascadeType and what are the options?</div>
+                <div class="a">CascadeType controls which JPA operations are propagated from parent to child. PERSIST:
+                    save parent → save children. MERGE: update parent → update children. REMOVE: delete parent → delete
+                    children. REFRESH: refresh parent → refresh children. DETACH: detach parent → detach children. ALL:
+                    all of the above. CraftEva uses CascadeType.ALL on Order→OrderItems so deleting an order
+                    automatically deletes its line items.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the difference between EAGER and LAZY fetching?</div>
+                <div class="a">EAGER: related entities are loaded immediately with the parent (one big JOIN query).
+                    LAZY: related entities loaded only when the getter is called (additional query on demand).
+                    @OneToMany defaults to LAZY, @ManyToOne defaults to EAGER. CraftEva uses LAZY for Order.orderItems
+                    to avoid loading all items when you only need the order total. The tradeoff: LAZY can cause N+1
+                    queries or LazyInitializationException if accessed outside a transaction.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is ddl-auto: update?</div>
+                <div class="a">spring.jpa.hibernate.ddl-auto=update tells Hibernate to automatically update the database
+                    schema on startup — adding new columns, creating new tables. It does NOT drop existing tables or
+                    columns. Options: create (drops then recreates on every start — erase all data), create-drop (like
+                    create but drops on shutdown), validate (only checks schema matches entities — fails if mismatch),
+                    none (do nothing — use Flyway/Liquibase for production migrations). For production, use validate or
+                    none.</div>
+            </div>
+
+            <h3 style="margin:12px 0 8px">REST API Design</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What makes an API RESTful?</div>
+                <div class="a">REST principles: 1) Stateless — each request has all info needed, no server session. 2)
+                    Resource-based URLs (nouns, not verbs): /api/orders not /api/getOrders. 3) HTTP methods convey
+                    action: GET=read, POST=create, PUT/PATCH=update, DELETE=delete. 4) Consistent status codes: 200 OK,
+                    201 Created, 204 No Content, 400, 401, 403, 404, 409, 500. CraftEva follows these conventions in its
+                    controllers.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the difference between PUT and PATCH?</div>
+                <div class="a">PUT replaces the entire resource — you send the complete object, even unchanged fields.
+                    PATCH partially updates — only the changed fields. CraftEva uses PUT /orders/cancel/{id} which is a
+                    simplified approach — a true REST design would use PATCH /orders/{id} with body {status:
+                    "CANCELLED"}. Both are acceptable in interviews if you explain the tradeoff.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What are HTTP status codes and which does CraftEva use?</div>
+                <div class="a">200 OK: successful GET/PUT. 201 Created: successful POST that created a resource (should
+                    use ResponseEntity.created(...)). 400 Bad Request: validation failed (@Valid). 401 Unauthorized:
+                    no/expired token. 403 Forbidden: valid token, wrong role. 404 Not Found: resource doesn't exist. 409
+                    Conflict: duplicate email. 500 Server Error: unhandled exception. CraftEva currently returns 500 for
+                    404/409 cases — a GlobalExceptionHandler would fix this.</div>
+            </div>
+
+            <h3 style="margin:12px 0 8px">Design Patterns</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What design patterns are used in this project?</div>
+                <div class="a">1) MVC — Controller/Service/Repository layers. 2) Repository Pattern — Spring Data JPA
+                    repository abstracts DB access. 3) Factory — Spring IoC creates beans. 4) Singleton — all Spring
+                    beans are singletons by default. 5) Template Method — OncePerRequestFilter.doFilterInternal() is a
+                    template method. 6) Strategy — SecurityConfig can swap PasswordEncoder implementations. 7) Filter
+                    Chain — JwtAuthenticationFilter in Spring's filter chain. 8) DTO Pattern — separate request/response
+                    objects from entities.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the difference between authentication and authorization?
+                </div>
+                <div class="a">Authentication: "Who are you?" — verifying identity. In CraftEva: POST /api/auth/login
+                    verifies email + password → issues JWT. Authorization: "Are you allowed to do this?" — checking
+                    permissions after identity is confirmed. In CraftEva: JwtFilter authenticates (sets
+                    SecurityContext), then @PreAuthorize("hasRole('ADMIN')") authorizes. 401=authentication failed,
+                    403=authorization failed.</div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        function show(id, btn) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+        function tog(el) {
+            const a = el.nextElementSibling;
+            a.classList.toggle('open');
+        }
+    </script>
+</body>
+
+</html>

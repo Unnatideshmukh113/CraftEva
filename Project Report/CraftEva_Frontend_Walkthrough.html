@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CraftEva Frontend Walkthrough</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Kalam', cursive;
+            background: #f8f4ec;
+            background-image: linear-gradient(rgba(0, 0, 0, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .04) 1px, transparent 1px);
+            background-size: 30px 30px;
+            padding: 20px
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.9rem;
+            color: #1a1a2e;
+            margin-bottom: 6px
+        }
+
+        .sub {
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            color: #555;
+            margin-bottom: 18px;
+            font-size: .8rem
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px
+        }
+
+        .tab-btn {
+            font-family: 'Kalam', cursive;
+            font-size: .88rem;
+            padding: 6px 16px;
+            border: 2.5px solid #1a1a2e;
+            border-radius: 10px;
+            background: #fffef9;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #1a1a2e
+        }
+
+        .tab-btn.active {
+            background: #1a1a2e;
+            color: #fff
+        }
+
+        .tab-pane {
+            display: none;
+            max-width: 1100px;
+            margin: 0 auto
+        }
+
+        .tab-pane.active {
+            display: block
+        }
+
+        .card {
+            background: #fffef9;
+            border: 2.5px solid #1a1a2e;
+            border-radius: 12px;
+            box-shadow: 6px 6px 0 #1a1a2e;
+            padding: 16px;
+            margin-bottom: 16px
+        }
+
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 2px dashed #1a1a2e
+        }
+
+        .card h3 {
+            font-size: .95rem;
+            margin: 10px 0 6px;
+            color: #065f46
+        }
+
+        pre {
+            background: #1a1a2e;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .72rem;
+            overflow-x: auto;
+            margin: 8px 0;
+            line-height: 1.6
+        }
+
+        .line-exp {
+            font-size: .8rem;
+            margin-bottom: 3px;
+            padding: 3px 6px;
+            border-left: 3px solid #1e3a8a;
+            background: #f0f4ff
+        }
+
+        .line-num {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .72rem;
+            color: #1e3a8a;
+            font-weight: 700;
+            margin-right: 5px
+        }
+
+        .qa-wrap {
+            margin-top: 10px
+        }
+
+        .qa {
+            margin-bottom: 10px;
+            border: 2px solid #1a1a2e;
+            border-radius: 8px;
+            overflow: hidden
+        }
+
+        .q {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 9px 12px;
+            font-size: .85rem;
+            cursor: pointer;
+            user-select: none
+        }
+
+        .q::before {
+            content: 'Q: '
+        }
+
+        .a {
+            background: #fffef9;
+            padding: 10px 12px;
+            font-size: .82rem;
+            display: none;
+            line-height: 1.6
+        }
+
+        .a.open {
+            display: block
+        }
+
+        .a::before {
+            content: 'A: ';
+            font-weight: 700;
+            color: #065f46
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: .68rem;
+            padding: 2px 7px;
+            border-radius: 10px;
+            border: 1.5px solid;
+            font-family: 'Share Tech Mono', monospace;
+            margin: 2px
+        }
+
+        .t-fe {
+            background: #dbeafe;
+            color: #1e3a8a;
+            border-color: #93c5fd
+        }
+
+        .t-sec {
+            background: #fce7f3;
+            color: #9d174d;
+            border-color: #f9a8d4
+        }
+
+        .t-ctx {
+            background: #d1fae5;
+            color: #065f46;
+            border-color: #6ee7b7
+        }
+
+        .t-route {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d
+        }
+
+        .flow-steps {
+            counter-reset: step
+        }
+
+        .flow-step {
+            counter-increment: step;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 6px;
+            align-items: flex-start
+        }
+
+        .flow-step::before {
+            content: counter(step);
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #1a1a2e;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .7rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        .flow-step p {
+            font-size: .82rem;
+            line-height: 1.5;
+            flex: 1
+        }
+
+        .mono {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .78rem;
+            background: #f0f0f0;
+            padding: 1px 4px;
+            border-radius: 3px
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎨 CraftEva — Frontend Code Walkthrough</h1>
+    <p class="sub">React 19 · Vite 7 · Axios · React Router v6 · Context API | src/ directory explained line by line</p>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="show('main',this)">main.jsx</button>
+        <button class="tab-btn" onclick="show('app',this)">App.jsx</button>
+        <button class="tab-btn" onclick="show('auth',this)">AuthContext</button>
+        <button class="tab-btn" onclick="show('axios',this)">axios.js</button>
+        <button class="tab-btn" onclick="show('route',this)">ProtectedRoute</button>
+        <button class="tab-btn" onclick="show('cart',this)">CartContext</button>
+        <button class="tab-btn" onclick="show('flow',this)">Full App Flow</button>
+        <button class="tab-btn" onclick="show('qa',this)">🎤 All Q&amp;A</button>
+    </div>
+
+    <!-- ========== main.jsx ========== -->
+    <div id="main" class="tab-pane active">
+        <div class="card">
+            <h2>main.jsx — Entry Point <span class="tag t-fe">Entry</span></h2>
+            <pre>import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App.jsx'
+
+createRoot(document.getElementById('root')).render(
+  &lt;StrictMode&gt;
+    &lt;App /&gt;
+  &lt;/StrictMode&gt;
+)</pre>
+            <h3>Line-by-Line</h3>
+            <div class="line-exp"><span class="line-num">L1</span>StrictMode — React dev helper that highlights
+                potential problems (double-renders in dev, warns about deprecated APIs)</div>
+            <div class="line-exp"><span class="line-num">L2</span>createRoot — React 18+ concurrent mode API (replaces
+                ReactDOM.render). Makes React capable of interruptible rendering.</div>
+            <div class="line-exp"><span class="line-num">L4</span>getElementById('root') — finds the &lt;div
+                id="root"&gt; in index.html — this is the single DOM entry point for the entire SPA</div>
+            <div class="line-exp"><span class="line-num">L5</span>.render(&lt;App/&gt;) — mounts the entire React
+                component tree starting from App, replacing the #root div's contents</div>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is StrictMode?</div>
+                    <div class="a">StrictMode is a development tool that deliberately double-invokes certain functions
+                        (like render and useEffect cleanup) to expose side-effects. It doesn't affect production builds.
+                        It helps you catch bugs like missing cleanup in useEffects, deprecated lifecycle methods, and
+                        unexpected re-renders.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is createRoot vs ReactDOM.render?</div>
+                    <div class="a">createRoot is React 18's concurrent mode API. It enables features like automatic
+                        batching, transitions, and Suspense. The old ReactDOM.render was synchronous and blocking —
+                        createRoot allows React to interrupt and resume rendering work, making the UI more responsive.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is a Single Page Application (SPA)?</div>
+                    <div class="a">In an SPA, the server sends one HTML file (index.html with &lt;div id="root"&gt;) and
+                        React takes over all rendering in the browser. Navigation between pages doesn't reload the page
+                        — React Router intercepts URL changes and swaps components. This makes the app feel fast like a
+                        native app.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== App.jsx ========== -->
+    <div id="app" class="tab-pane">
+        <div class="card">
+            <h2>App.jsx — Root Component &amp; Provider Tree <span class="tag t-ctx">Context</span><span
+                    class="tag t-route">Routing</span></h2>
+            <pre>// Provider nesting order (outer → inner):
+&lt;AuthProvider&gt;           // ← Auth state (token, role, user) available everywhere
+  &lt;WishlistProvider&gt;     // ← Wishlist state uses auth (needs user)
+    &lt;CartProvider&gt;       // ← Cart state uses auth + makes API calls
+      &lt;Router&gt;           // ← React Router (BrowserRouter) for URL-based navigation
+        &lt;Header /&gt;       // ← Reads AuthContext + CartContext for nav badges
+        &lt;Routes&gt;
+          &lt;Route path="/" element={&lt;Home /&gt;} /&gt;          // Public
+          &lt;Route path="/login" element={&lt;Login /&gt;} /&gt;    // Public
+          &lt;Route path="/register" element={&lt;Register /&gt;} /&gt; // Public
+          &lt;Route path="/cart"
+            element={&lt;ProtectedRoute requiredRole="BUYER"&gt;&lt;Cart/&gt;&lt;/ProtectedRoute&gt;} /&gt;
+          &lt;Route path="/seller"
+            element={&lt;ProtectedRoute requiredRole="SELLER"&gt;&lt;SellerDashboard/&gt;&lt;/ProtectedRoute&gt;} /&gt;
+          &lt;Route path="/admin"
+            element={&lt;ProtectedRoute requiredRole="ADMIN"&gt;&lt;AdminDashboard/&gt;&lt;/ProtectedRoute&gt;} /&gt;
+        &lt;/Routes&gt;
+        &lt;Footer /&gt;
+      &lt;/Router&gt;
+    &lt;/CartProvider&gt;
+  &lt;/WishlistProvider&gt;
+&lt;/AuthProvider&gt;</pre>
+            <h3>Why this provider nesting order?</h3>
+            <div class="line-exp">AuthProvider is outermost because CartProvider and WishlistProvider both call <span
+                    class="mono">useAuth()</span> — they must be inside AuthProvider</div>
+            <div class="line-exp">CartProvider is inside WishlistProvider because both are used independently — no
+                dependency between them</div>
+            <div class="line-exp">Router wraps everything because Header, Footer, and all pages need
+                useNavigate/useLocation</div>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why do we nest Context Providers?</div>
+                    <div class="a">Each Context.Provider only makes its value available to its children. If CartProvider
+                        uses useAuth() internally, CartProvider must be a child of AuthProvider — otherwise
+                        useContext(AuthContext) would return undefined. The nesting order mirrors the dependency graph.
+                    </div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is BrowserRouter / Router?</div>
+                    <div class="a">BrowserRouter uses the HTML5 History API (pushState) to keep the UI in sync with the
+                        URL without page reloads. It provides routing context (location, history) to all child
+                        components. useNavigate() and useParams() only work inside a Router — that's why Router wraps
+                        the entire app.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does Routes and Route do?</div>
+                    <div class="a">Routes renders only the first Route whose path matches the current URL. Route maps a
+                        URL path to a component. Without Routes, all matching Routes would render simultaneously. The
+                        replace attribute (used in Navigate) prevents the redirect from creating a history entry — so
+                        Back button doesn't loop.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Where is index.html and what does it contain?</div>
+                    <div class="a">In a Vite project, index.html is at the project root. It contains &lt;div
+                        id="root"&gt;&lt;/div&gt; (the mount point) and a &lt;script type="module"
+                        src="/src/main.jsx"&gt; tag. Vite serves this file for any URL request — React Router then
+                        renders the correct component based on the URL path.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== AuthContext ========== -->
+    <div id="auth" class="tab-pane">
+        <div class="card">
+            <h2>AuthContext.jsx — Authentication State <span class="tag t-ctx">Context</span><span
+                    class="tag t-sec">Security</span></h2>
+            <pre>// Key parts explained:
+
+const AuthContext = createContext();       // Create empty context object
+
+export const useAuth = () => {            // Custom hook — cleaner than useContext(AuthContext) everywhere
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('...'); // Guard: prevents use outside AuthProvider
+  return context;
+};
+
+// On MOUNT — restore session from sessionStorage (survives refresh)
+useEffect(() => {
+  const storedUser  = sessionStorage.getItem('user');   // JSON string
+  const storedToken = sessionStorage.getItem('token');  // JWT string
+  const storedRole  = sessionStorage.getItem('role');   // "BUYER"/"SELLER"/"ADMIN"
+  if (storedUser && storedToken && storedRole) {
+    setUser({ ...JSON.parse(storedUser), role: storedRole });
+  }
+  setLoading(false);  // ← ProtectedRoute waits for this before redirecting
+}, []);               // ← runs once on mount only
+
+// LOGIN function
+const login = async (email, password) => {
+  const response = await api.post('/auth/login', { email, password });
+  const { token, email: userEmail, role, userId } = response.data;
+  // Store in sessionStorage (clears when browser tab closes)
+  sessionStorage.setItem('token', token);
+  sessionStorage.setItem('user', JSON.stringify({ userId, email: userEmail, role }));
+  sessionStorage.setItem('role', role);
+  setUser(userData);
+  return { success: true };
+};
+
+// Computed convenience flags (derived state — no extra useState needed)
+const value = {
+  user, login, register, logout, loading,
+  isAuthenticated: !!user,          // true if user object exists
+  isBuyer:   user?.role === 'BUYER',
+  isSeller:  user?.role === 'SELLER',
+  isAdmin:   user?.role === 'ADMIN',
+};</pre>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why sessionStorage instead of localStorage?</div>
+                    <div class="a">sessionStorage clears automatically when the browser tab is closed — so the user is
+                        logged out when they close the tab, which is more secure. localStorage persists until explicitly
+                        cleared, meaning the user stays logged in even after closing the browser — good for "remember
+                        me" features but a security risk on shared computers. CraftEva chooses the more secure
+                        sessionStorage approach.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why the loading state? What happens without it?</div>
+                    <div class="a">On page refresh, the useEffect that restores the session runs asynchronously. Without
+                        loading state, ProtectedRoute checks isAuthenticated before the session is restored — finding
+                        null user — and redirects to /login even for authenticated users. The loading flag makes
+                        ProtectedRoute show "Loading..." until the session check completes, then render correctly.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is a custom hook? Why useAuth()?</div>
+                    <div class="a">A custom hook is a function starting with "use" that calls other hooks. useAuth()
+                        wraps useContext(AuthContext) and adds the null guard. Instead of importing and calling
+                        useContext(AuthContext) in every component, you just call useAuth(). The null guard gives a
+                        helpful error if someone forgets to wrap their component in AuthProvider, instead of a cryptic
+                        "cannot read property of undefined" error.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does !!user mean?</div>
+                    <div class="a">!! is double negation — it converts any value to a boolean. If user is null, !null is
+                        true, !!null is false. If user is an object, !{...} is false, !!{...} is true. So !!user is true
+                        when user exists and false when it's null — a clean way to derive isAuthenticated without an
+                        explicit boolean state.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why store role in both the user object AND a separate
+                        sessionStorage key?</div>
+                    <div class="a">The user object in sessionStorage is a JSON string that may need parsing. Storing
+                        role separately allows the Axios interceptor and ProtectedRoute to access the role as a plain
+                        string without parsing JSON — a small performance and convenience optimization. Both are kept in
+                        sync on login and cleared on logout.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is optional chaining (?.) used in user?.role?</div>
+                    <div class="a">Optional chaining safely accesses a property of an object that might be
+                        null/undefined. user?.role returns undefined (not an error) when user is null. Without it,
+                        user.role when user is null would throw "TypeError: Cannot read properties of null". This is
+                        essential here since user is null before login.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== axios.js ========== -->
+    <div id="axios" class="tab-pane">
+        <div class="card">
+            <h2>api/axios.js — HTTP Client with Interceptors <span class="tag t-sec">Security</span><span
+                    class="tag t-fe">API</span></h2>
+            <pre>import axios from 'axios';
+
+// Create a pre-configured Axios instance
+const api = axios.create({
+  baseURL: 'http://localhost:8080/api', // Prepended to every request URL
+  headers: { 'Content-Type': 'application/json' },
+});
+
+// ── REQUEST INTERCEPTOR ──────────────────────────────────────────
+// Runs BEFORE every request is sent
+api.interceptors.request.use(
+  (config) => {
+    const token = sessionStorage.getItem('token'); // Read fresh token every time
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`; // Attach to header
+    }
+    return config;  // ← MUST return config or request is cancelled
+  },
+  (error) => Promise.reject(error) // Propagate request setup errors
+);
+
+// ── RESPONSE INTERCEPTOR ─────────────────────────────────────────
+// Runs AFTER every response is received
+api.interceptors.response.use(
+  (response) => response,  // ← 2xx responses: pass through unchanged
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token expired or missing → clear session → force re-login
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
+      sessionStorage.removeItem('role');
+      window.location.href = '/login'; // Hard redirect (not useNavigate — no Router context)
+    }
+    return Promise.reject(error); // Re-throw for per-call .catch() handlers
+  }
+);
+
+export default api;</pre>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why create an Axios instance instead of using axios directly?
+                    </div>
+                    <div class="a">An Axios instance (axios.create()) lets you set a baseURL and default headers once.
+                        Without it, every API call would need the full URL (http://localhost:8080/api/auth/login) and
+                        manually add headers. The instance centralises configuration — change the base URL in one place
+                        when deploying to production.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">How do Axios interceptors work?</div>
+                    <div class="a">Interceptors are middleware for HTTP requests/responses. The request interceptor runs
+                        before the request is sent — great for attaching auth tokens. The response interceptor runs
+                        after a response is received — great for handling global errors like 401. Every API call made
+                        through the api instance goes through both interceptors automatically.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why use window.location.href instead of useNavigate for the 401
+                        redirect?</div>
+                    <div class="a">useNavigate() is a React Router hook and requires the component to be inside a Router
+                        context. The Axios interceptor is plain JavaScript — it runs outside any React component
+                        context, so hooks cannot be used. window.location.href = '/login' is the only way to redirect
+                        from non-component code. It also triggers a full page reload which clears all React state — a
+                        clean logout.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why read the token from sessionStorage on every request instead
+                        of once?</div>
+                    <div class="a">If we closed over the token at module load time (const token =
+                        sessionStorage.getItem('token') outside the interceptor), we'd capture null (user not logged in
+                        yet). Reading it inside the interceptor function ensures we always get the current token — even
+                        after login happens later. This is the correct approach for dynamic auth state.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does return Promise.reject(error) do?</div>
+                    <div class="a">It re-throws the error after the interceptor handles it. If we just returned nothing,
+                        Axios would treat the response as success. By rejecting the promise, the error propagates to the
+                        .catch() block of the individual API call — so each page can still show its own "Network error"
+                        message in addition to the global 401 handling.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ProtectedRoute ========== -->
+    <div id="route" class="tab-pane">
+        <div class="card">
+            <h2>ProtectedRoute.jsx — Route Guard <span class="tag t-route">Routing</span><span
+                    class="tag t-sec">Security</span></h2>
+            <pre>import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
+const ProtectedRoute = ({ children, requiredRole = null }) => {
+  const { isAuthenticated, user, loading } = useAuth();
+
+  // Step 1: Wait for session restore (prevents flash-redirect on refresh)
+  if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+
+  // Step 2: Not logged in → redirect to login
+  if (!isAuthenticated) return &lt;Navigate to="/login" replace /&gt;;
+
+  // Step 3: Logged in but wrong role → redirect to home
+  if (requiredRole && user?.role !== requiredRole) return &lt;Navigate to="/" replace /&gt;;
+
+  // Step 4: Authenticated + correct role → render the page
+  return children;
+};
+</pre>
+            <h3>Decision Tree</h3>
+            <div class="line-exp">loading=true → show spinner (prevents wrong redirect during hydration)</div>
+            <div class="line-exp">isAuthenticated=false → &lt;Navigate to="/login" replace /&gt;</div>
+            <div class="line-exp">requiredRole="SELLER" but user.role="BUYER" → &lt;Navigate to="/" replace /&gt;</div>
+            <div class="line-exp">All checks pass → render {children} (the actual page component)</div>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does the replace prop on Navigate do?</div>
+                    <div class="a">replace={true} replaces the current entry in the browser history stack instead of
+                        pushing a new one. Without replace, clicking Back would take the user back to the protected
+                        route, which would redirect again — creating an infinite loop. With replace, going back skips
+                        the protected URL entirely.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is the flash-of-wrong-content problem and how is loading
+                        solving it?</div>
+                    <div class="a">On page refresh, React renders before useEffect runs. The user object is null for a
+                        brief moment while sessionStorage is being read. Without loading state, ProtectedRoute sees
+                        isAuthenticated=false and redirects to /login — even for a logged-in user. The loading flag
+                        delays that check until hydration from sessionStorage is complete.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is children prop here?</div>
+                    <div class="a">In React, children is a special prop that represents whatever JSX is placed between
+                        the opening and closing tags of a component. Here, &lt;ProtectedRoute
+                        requiredRole="BUYER"&gt;&lt;Cart/&gt;&lt;/ProtectedRoute&gt; — "Cart" is the children prop.
+                        ProtectedRoute acts as a wrapper that conditionally renders its children.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Can a SELLER access /cart if they manually type the URL?</div>
+                    <div class="a">No — ProtectedRoute checks user?.role !== requiredRole ("SELLER" !== "BUYER" → true)
+                        and redirects to "/". Client-side route guards prevent UI access, but the backend is the real
+                        security layer — the API calls from /cart page use Bearer tokens, and the backend's
+                        @PreAuthorize("hasRole('BUYER')") would reject SELLER tokens with 403.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== CartContext ========== -->
+    <div id="cart" class="tab-pane">
+        <div class="card">
+            <h2>CartContext.jsx — Cart State &amp; API Integration <span class="tag t-ctx">Context</span></h2>
+            <pre>// CartContext uses 3 useEffect hooks:
+
+// useEffect 1: Cleanup corrupted cartOrderId on mount
+useEffect(() => {
+  const storedOrderId = sessionStorage.getItem('cartOrderId');
+  if (storedOrderId && (storedOrderId.includes(':') || isNaN(parseInt(storedOrderId)))) {
+    sessionStorage.removeItem('cartOrderId'); // Clear invalid data like "10:1"
+    setCartOrderId(null); setCartItems([]);
+  }
+}, []);  // once on mount
+
+// useEffect 2: Load cart from backend when user logs in
+useEffect(() => {
+  if (user && isBuyer) {
+    api.get(`/order-items/order/${orderId}`)   // Fetch existing cart items
+       .then(res => setCartItems(res.data));
+  } else {
+    setCartItems([]); setCartOrderId(null);    // Non-buyers get empty cart
+  }
+}, [user, isBuyer]);  // re-runs when user changes (login/logout)
+
+// useEffect 3: Sync cart state to sessionStorage
+useEffect(() => {
+  if (cartItems.length > 0) sessionStorage.setItem('cartItems', JSON.stringify(cartItems));
+  else sessionStorage.removeItem('cartItems');
+  if (cartOrderId) sessionStorage.setItem('cartOrderId', cartOrderId.toString());
+  else sessionStorage.removeItem('cartOrderId');
+}, [cartItems, cartOrderId]);  // runs whenever cart changes
+
+// addToCart flow:
+const addToCart = async (productId, quantity = 1) => {
+  // 1. Validate user is logged in as BUYER
+  if (!user || !isBuyer) return { success: false, error: '...' };
+
+  // 2. Create order if none exists yet
+  if (!orderId) {
+    const res = await api.post('/orders/add', { buyer: { userId: user.userId }, totalAmount: 0 });
+    orderId = res.data.orderId;
+    setCartOrderId(orderId.toString());
+  }
+
+  // 3. Add item to order via /order-items/add
+  await api.post('/order-items/add', { product: { productId }, order: { orderId }, quantity, price: 0 });
+
+  // 4. Refresh cart items from backend
+  const updated = await api.get(`/order-items/order/${orderId}`);
+  setCartItems(updated.data);
+};</pre>
+
+            <div class="qa-wrap">
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why does addToCart create an order before adding an item?</div>
+                    <div class="a">The backend design links OrderItems to an Order (order_id FK). There's no "shopping
+                        cart" table — the cart IS an order with status PLACED. Before any item can be added, an order
+                        row must exist. So the first "add to cart" action triggers POST /orders/add (creating an Order
+                        with totalAmount=0), then POST /order-items/add links the product to that order.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why are there 3 useEffect hooks instead of one?</div>
+                    <div class="a">Each useEffect has a different purpose and dependency: 1) Cleanup runs once on mount
+                        (no deps). 2) Cart loading runs when the user changes (login/logout triggers it). 3)
+                        sessionStorage sync runs whenever cartItems or cartOrderId change. Combining them would create
+                        circular dependencies and incorrect timing. Separating them makes each effect's intent clear and
+                        correct.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">Why does useEffect 2 have [user, isBuyer] as dependencies?</div>
+                    <div class="a">When a user logs in, the user object changes from null to {userId, role, ...} — this
+                        triggers useEffect 2 to load their cart. When they log out, user becomes null again — the else
+                        branch clears the cart. Without user in the dependency array, the cart would never reload after
+                        login (stale closure problem).</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What is the stale closure problem in useEffect?</div>
+                    <div class="a">If you use a variable inside useEffect but don't include it in the dependency array,
+                        useEffect captures the initial value and never sees updates — this is a stale closure. For
+                        example, if user is not in deps, the cart loading code would always use the initial null value
+                        even after login. ESLint's exhaustive-deps rule helps catch this.</div>
+                </div>
+                <div class="qa">
+                    <div class="q" onclick="tog(this)">What does getCartTotal() do and why not store it as state?</div>
+                    <div class="a">getCartTotal() calculates the sum from cartItems dynamically:
+                        cartItems.reduce((total, item) => total + item.price, 0). Storing total as separate state would
+                        require keeping it in sync manually — a common source of bugs. Since total is derived entirely
+                        from cartItems, computing it on-demand is simpler and always correct. This is the "derive, don't
+                        duplicate" principle in React state management.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== Full Flow ========== -->
+    <div id="flow" class="tab-pane">
+        <div class="card">
+            <h2>Complete Application Flow — From User Action to API Response</h2>
+            <h3>🔐 Login Flow</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <p>User types email + password in <span class="mono">Login.jsx</span>, clicks Submit</p>
+                </div>
+                <div class="flow-step">
+                    <p><span class="mono">useAuth().login(email, password)</span> called — triggers <span
+                            class="mono">api.post('/auth/login', {...})</span></p>
+                </div>
+                <div class="flow-step">
+                    <p>Axios request interceptor reads token from sessionStorage (null at login) — no Authorization
+                        header added</p>
+                </div>
+                <div class="flow-step">
+                    <p>Spring Boot <span class="mono">AuthController.login()</span> → <span
+                            class="mono">UserServiceImpl.login()</span> → BCrypt.matches() → generateToken()</p>
+                </div>
+                <div class="flow-step">
+                    <p>Response: <span class="mono">{"token":"eyJ...","role":"BUYER","userId":42}</span> — stored to
+                        sessionStorage. setUser() called.</p>
+                </div>
+                <div class="flow-step">
+                    <p>CartContext's useEffect [user] fires → loads cart items for this buyer</p>
+                </div>
+                <div class="flow-step">
+                    <p><span class="mono">useNavigate('/')</span> → React Router updates URL → Home renders</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top:12px">🛒 Add to Cart Flow</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <p>User clicks "Add to Cart" on a product card on <span class="mono">Home.jsx</span></p>
+                </div>
+                <div class="flow-step">
+                    <p><span class="mono">useCart().addToCart(productId, 1)</span> called</p>
+                </div>
+                <div class="flow-step">
+                    <p>No cartOrderId in sessionStorage → <span class="mono">POST /api/orders/add</span> with Bearer
+                        token → creates Order (status=PLACED)</p>
+                </div>
+                <div class="flow-step">
+                    <p><span class="mono">POST /api/order-items/add</span> with orderId + productId + quantity</p>
+                </div>
+                <div class="flow-step">
+                    <p><span class="mono">GET /api/order-items/order/{orderId}</span> → setCartItems(updated) → Header
+                        badge updates</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top:12px">💳 Checkout Flow</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <p>User goes to <span class="mono">/cart</span> → ProtectedRoute allows (BUYER role) → Cart.jsx
+                        renders items from CartContext</p>
+                </div>
+                <div class="flow-step">
+                    <p>User clicks Checkout → navigates to <span class="mono">/payment</span></p>
+                </div>
+                <div class="flow-step">
+                    <p>Payment.jsx calls <span class="mono">POST /api/payments</span> or <span class="mono">POST
+                            /api/payments/gateway</span></p>
+                </div>
+                <div class="flow-step">
+                    <p>On success → <span class="mono">clearCart()</span> called → sessionStorage cleared → navigate to
+                        <span class="mono">/orders</span></p>
+                </div>
+                <div class="flow-step">
+                    <p>Orders.jsx fetches <span class="mono">GET /api/orders/buyer/{userId}</span> → shows order list
+                    </p>
+                </div>
+                <div class="flow-step">
+                    <p>User clicks Download Invoice → <span class="mono">GET /api/invoices/order/{orderId}</span> → PDF
+                        download</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top:12px">🚪 Logout Flow</h3>
+            <div class="flow-steps">
+                <div class="flow-step">
+                    <p>User clicks Logout in Header → <span class="mono">useAuth().logout()</span> called</p>
+                </div>
+                <div class="flow-step">
+                    <p>sessionStorage.removeItem for token, user, role → setUser(null)</p>
+                </div>
+                <div class="flow-step">
+                    <p>CartContext useEffect [user] fires (user changed to null) → setCartItems([]) →
+                        setCartOrderId(null)</p>
+                </div>
+                <div class="flow-step">
+                    <p>Header re-renders (reads AuthContext) → shows Login/Register links instead of user name</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== All Q&A ========== -->
+    <div id="qa" class="tab-pane">
+        <div class="card">
+            <h2>🎤 All Possible Frontend Interview Questions</h2>
+
+            <h3 style="margin-bottom:8px">React Core</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is JSX and how does it work?</div>
+                <div class="a">JSX is a syntax extension that allows HTML-like markup in JavaScript. React's build tool
+                    (Babel/Vite) compiles JSX to React.createElement() calls. For example, &lt;div className="x"&gt;
+                    becomes React.createElement('div', {className: 'x'}). Attributes use camelCase (className not class,
+                    onClick not onclick) because JSX compiles to JS object keys.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the Virtual DOM?</div>
+                <div class="a">The Virtual DOM is React's in-memory JavaScript copy of the real DOM. When state changes,
+                    React creates a new Virtual DOM, diffs it against the previous one (reconciliation), computes the
+                    minimal changes, and applies only those to the real DOM in a single batch. This is far faster than
+                    directly manipulating the DOM on every state change.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What are React hooks and what rules apply to them?</div>
+                <div class="a">Hooks are functions (starting with "use") that let functional components use React
+                    features like state and lifecycle. Rules: 1) Only call at the top level — never inside
+                    if/loops/nested functions. 2) Only call in React functions or custom hooks — not regular JS. These
+                    rules ensure React can maintain the order of hook calls across renders (React tracks hooks by call
+                    order).</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">Explain useState.</div>
+                <div class="a">useState(initialValue) returns [value, setter]. Calling the setter schedules a re-render
+                    with the new value. The setter can take a value directly or a function: setCount(prev => prev + 1) —
+                    the function form is safe when next state depends on previous, avoiding stale closure bugs in async
+                    code.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">Explain useEffect and its dependency array.</div>
+                <div class="a">useEffect(fn, deps) runs the function after render. Empty array [] = run once on mount.
+                    With deps = run when any dep changes. No array = run after every render (rarely useful). The
+                    returned function is the cleanup — runs before the next effect and on unmount. Used for API calls,
+                    event listeners, timers.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is prop drilling and how does Context API solve it?</div>
+                <div class="a">Prop drilling is passing props through many intermediate components that don't need them,
+                    just to reach a deep child. Context API creates a shared store at a high level (AuthContext,
+                    CartContext) and any descendant can read it via useContext(). CraftEva uses this so Cart badge in
+                    Header, product pages, and payment page all read from the same CartContext without prop chains.
+                </div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is useMemo and useCallback?</div>
+                <div class="a">useMemo(fn, deps) caches the return value of fn until deps change — prevents expensive
+                    recalculation on every render. useCallback(fn, deps) caches the function reference itself — prevents
+                    child components wrapped in React.memo from re-rendering when the parent re-renders (because the
+                    function reference stays the same). Use when profiling shows performance issues, not by default.
+                </div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is React.memo?</div>
+                <div class="a">React.memo is a higher-order component that wraps a component and skips re-rendering if
+                    its props haven't changed (shallow comparison). Useful for expensive components that receive stable
+                    props. Example: ProductCard wrapped in React.memo won't re-render when the parent re-renders if the
+                    product prop hasn't changed.</div>
+            </div>
+
+            <h3 style="margin:12px 0 8px">React Router v6</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">How does React Router work?</div>
+                <div class="a">React Router uses BrowserRouter (History API) to listen to URL changes. When the URL
+                    changes, Routes compares the path to each Route's path and renders the matching component.
+                    Navigation with &lt;Link&gt; or useNavigate() updates the URL without a page reload. The actual HTML
+                    file never changes — React swaps components in the div#root.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the difference between Link and useNavigate?</div>
+                <div class="a">Link renders as an &lt;a&gt; tag and is used in JSX for user-clickable navigation.
+                    useNavigate() returns a navigate function used programmatically — e.g., after a form submit, API
+                    success, or logout. Both update the URL via History API without a page reload.</div>
+            </div>
+
+            <h3 style="margin:12px 0 8px">State Management</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">When would you use Redux instead of Context API?</div>
+                <div class="a">Context API is good for low-frequency updates (auth state, theme). For high-frequency
+                    updates like rapid state changes (typing in a search field updates 100 results), Context causes
+                    every consumer to re-render. Redux with selectors re-renders only components whose selected slice
+                    changed. Also: Redux DevTools make debugging time-travel easier in complex apps. For CraftEva's
+                    scale, Context is the right choice.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is the difference between controlled and uncontrolled
+                    components?</div>
+                <div class="a">Controlled: form input value is managed by React state — every keystroke calls setState,
+                    React controls the displayed value. Uncontrolled: value is in the DOM, read via useRef when needed.
+                    CraftEva's Login form is controlled — const [email, setEmail] = useState('') with onChange={e =>
+                    setEmail(e.target.value)}. Controlled components are preferred because they enable live validation
+                    and conditional submit buttons.</div>
+            </div>
+
+            <h3 style="margin:12px 0 8px">Security & Auth</h3>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">Is storing JWT in sessionStorage safe?</div>
+                <div class="a">sessionStorage is accessible by JavaScript running on the page, making it vulnerable to
+                    XSS (Cross-Site Scripting) attacks — if an attacker injects JS, they can steal the token. The safest
+                    option is httpOnly cookies (not accessible by JS). However, sessionStorage is safer than
+                    localStorage (clears on tab close) and is acceptable for many applications. CraftEva mitigates risk
+                    by ensuring no user-generated content is rendered as raw HTML.</div>
+            </div>
+            <div class="qa">
+                <div class="q" onclick="tog(this)">What is XSS and how do you prevent it?</div>
+                <div class="a">XSS (Cross-Site Scripting) is an attack where malicious JavaScript is injected into a
+                    webpage. React prevents XSS by default — it escapes all values rendered inside JSX using
+                    dangerouslySetInnerHTML is avoided. The risk exists when rendering raw HTML from user input.
+                    Prevention: never use dangerouslySetInnerHTML, sanitize inputs, use Content Security Policy headers.
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        function show(id, btn) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+        function tog(el) {
+            const a = el.nextElementSibling;
+            a.classList.toggle('open');
+        }
+    </script>
+</body>
+
+</html>
