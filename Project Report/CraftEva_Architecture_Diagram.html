@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CraftEva — System Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Kalam',cursive;background:#f8f4ec;min-height:100vh;
+  background-image:linear-gradient(rgba(0,0,0,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,.04) 1px,transparent 1px);
+  background-size:30px 30px;padding:20px;}
+h1{text-align:center;font-size:2rem;color:#1a1a2e;margin-bottom:6px;text-shadow:2px 2px 0 rgba(0,0,0,.08)}
+.subtitle{text-align:center;font-family:'Share Tech Mono',monospace;color:#555;margin-bottom:18px;font-size:.85rem}
+/* Tabs */
+.tabs{display:flex;gap:10px;justify-content:center;margin-bottom:22px}
+.tab-btn{font-family:'Kalam',cursive;font-size:1rem;padding:8px 24px;border:2.5px solid #1a1a2e;border-radius:10px;
+  background:#fffef9;cursor:pointer;box-shadow:4px 4px 0 #1a1a2e;transition:all .15s}
+.tab-btn.active{background:#1a1a2e;color:#fff}
+.tab-btn:hover:not(.active){background:#e8e4dc}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* DIAGRAM TAB */
+.arch-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;max-width:1400px;margin:0 auto}
+.layer{border:3px solid #1a1a2e;border-radius:14px;background:#fffef9;box-shadow:7px 7px 0 #1a1a2e;padding:14px;position:relative}
+.layer-title{font-size:1.1rem;font-weight:700;text-align:center;padding:7px 10px;border-radius:8px;
+  border:2.5px solid #1a1a2e;margin-bottom:12px;letter-spacing:.5px}
+.fe .layer-title{background:#dbeafe;color:#1e3a8a}
+.sec .layer-title{background:#fce7f3;color:#9d174d}
+.be .layer-title{background:#d1fae5;color:#065f46}
+.db .layer-title{background:#fef3c7;color:#92400e}
+
+/* Step numbers */
+.step-num{display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;background:#1a1a2e;color:#fff;
+  font-size:.75rem;font-weight:700;margin-right:5px;flex-shrink:0}
+
+/* Cards inside layers */
+.card{background:#fffef9;border:2px solid #1a1a2e;border-radius:10px;
+  box-shadow:4px 4px 0 #1a1a2e;padding:8px 10px;margin-bottom:9px;font-size:.82rem}
+.card.dark{background:#1a1a2e;color:#f8f4ec}
+.card.danger{background:#fce7f3;border-color:#be185d;}
+.card.warn{background:#f5f0ff;border-color:#7c3aed;}
+.card-title{font-weight:700;margin-bottom:3px;font-size:.88rem}
+.mono{font-family:'Share Tech Mono',monospace;font-size:.78rem}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{font-family:'Share Tech Mono',monospace;font-size:.68rem;padding:2px 7px;
+  border:1.5px solid #1a1a2e;border-radius:20px;background:#e8e4dc}
+
+/* 3-column backend split */
+.be-cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.be-col-title{font-weight:700;text-align:center;font-size:.8rem;margin-bottom:6px;
+  padding:3px;background:#d1fae5;border-radius:6px;border:1.5px dashed #065f46}
+
+/* Browser mock */
+.browser-mock{border:2px solid #1a1a2e;border-radius:10px;overflow:hidden;margin-bottom:9px}
+.browser-bar{background:#1a1a2e;padding:5px 10px;display:flex;gap:5px;align-items:center}
+.browser-dot{width:9px;height:9px;border-radius:50%}
+.browser-url{flex:1;background:#2d2d4e;border-radius:4px;padding:2px 8px;
+  font-family:'Share Tech Mono',monospace;font-size:.68rem;color:#94a3b8;margin-left:6px}
+.browser-content{padding:8px 10px;font-size:.78rem}
+
+/* DB cylinder + tables */
+.db-cyl{text-align:center;padding:10px;margin-bottom:8px}
+.cyl-symbol{font-size:2rem}
+.table-card{border:2px solid #92400e;border-radius:8px;padding:7px 9px;
+  margin-bottom:7px;background:#fffbeb;box-shadow:3px 3px 0 #92400e}
+.table-name{font-weight:700;font-size:.85rem;color:#92400e}
+.col-row{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#555;margin-top:3px}
+.col-row .pk{color:#b45309;font-weight:700}
+.col-row .fk{color:#1d4ed8;font-weight:700}
+
+/* Arrow row */
+.flow-arrow{display:flex;align-items:center;max-width:1400px;margin:14px auto 6px;gap:0}
+.arrow-seg{flex:1;text-align:center}
+.arr-label{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:#1a1a2e;
+  background:#fffef9;border:1.5px solid #1a1a2e;border-radius:6px;padding:2px 7px;display:inline-block}
+.arr-line{border-top:2.5px solid #1a1a2e;width:100%;margin:6px 0;position:relative}
+.arr-line::after{content:'▶';position:absolute;right:-8px;top:-11px;font-size:1rem}
+.arr-line.dashed{border-top-style:dashed}
+.arr-line.dashed::after{content:'▶';position:absolute;right:-8px;top:-11px;font-size:1rem}
+
+/* Response arrow */
+.resp-arrow{text-align:center;margin:10px auto;max-width:1400px;border-top:2.5px dashed #be185d;position:relative}
+.resp-label{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:#be185d;
+  background:#f8f4ec;padding:2px 10px;display:inline-block;position:relative;top:-11px}
+
+/* Journey numbers row */
+.journey-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px;max-width:1400px;margin:8px auto 0}
+.journey-num{text-align:center}
+
+/* ===================== HOW TO DRAW TAB ===================== */
+.htd-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;max-width:1100px;margin:0 auto}
+.step-card{background:#fffef9;border:3px solid #1a1a2e;border-radius:14px;
+  box-shadow:7px 7px 0 #1a1a2e;padding:16px}
+.step-num-big{font-size:2rem;font-weight:700;color:#1a1a2e;margin-bottom:8px}
+.step-card h3{font-size:1rem;margin-bottom:8px;border-bottom:2px dashed #1a1a2e;padding-bottom:6px}
+.what-label{font-size:.75rem;font-weight:700;color:#065f46;margin-bottom:3px;text-transform:uppercase}
+.say-label{font-size:.75rem;font-weight:700;color:#9d174d;margin-bottom:3px;margin-top:8px;text-transform:uppercase}
+.say-box{background:#1a1a2e;color:#f8f4ec;border-radius:8px;padding:8px 10px;font-size:.8rem;line-height:1.5}
+</style>
+</head>
+<body>
+<h1>🎨 CraftEva — System Architecture</h1>
+<p class="subtitle">Spring Boot 3.5.7 + React 19 + MySQL | JWT · BCrypt · @PreAuthorize · iTextPDF</p>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="show('diagram',this)">📐 Diagram</button>
+  <button class="tab-btn" onclick="show('htd',this)">✏️ How to Draw</button>
+</div>
+
+<!-- ============================================================ DIAGRAM TAB -->
+<div id="diagram" class="tab-pane active">
+
+  <!-- REQUEST flow labels -->
+  <div class="flow-arrow">
+    <div class="arrow-seg">
+      <div class="arr-label">HTTP + Bearer JWT</div>
+      <div class="arr-line"></div>
+      <small class="mono">① User Action</small>
+    </div>
+    <div class="arrow-seg">
+      <div class="arr-label">Validated Token + Role</div>
+      <div class="arr-line"></div>
+      <small class="mono">② Auth Check</small>
+    </div>
+    <div class="arrow-seg">
+      <div class="arr-label">Method Call + DTO</div>
+      <div class="arr-line"></div>
+      <small class="mono">③ Business Logic</small>
+    </div>
+    <div class="arrow-seg">
+      <div class="arr-label">SQL Query / Rows</div>
+      <div class="arr-line"></div>
+      <small class="mono">④ Persistence</small>
+    </div>
+  </div>
+
+  <!-- Main 4-layer grid -->
+  <div class="arch-grid">
+
+    <!-- ① FRONTEND -->
+    <div class="layer fe">
+      <div class="layer-title">① FRONTEND</div>
+
+      <div class="browser-mock">
+        <div class="browser-bar">
+          <div class="browser-dot" style="background:#ef4444"></div>
+          <div class="browser-dot" style="background:#f59e0b"></div>
+          <div class="browser-dot" style="background:#22c55e"></div>
+          <div class="browser-url">localhost:5173</div>
+        </div>
+        <div class="browser-content">
+          React 19 SPA — Vite 7
+        </div>
+      </div>
+
+      <div class="card dark">
+        <div class="card-title">AuthContext</div>
+        <div class="mono">token, role, userId stored<br>in localStorage after login</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Axios Instance</div>
+        <div class="mono">Authorization: Bearer &lt;token&gt;<br>attached to every request</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📄 Pages</div>
+        <div class="mono">
+          Home · Login · Register<br>
+          Cart · Payment · Orders<br>
+          OrderHistory · Wishlist<br>
+          SellerDashboard<br>
+          AdminDashboard · AboutUs
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🗂 Services / API Layer</div>
+        <div class="mono">api/ · service/ · context/<br>auth/ guards per route</div>
+      </div>
+
+      <div class="chip-row">
+        <span class="chip">React 19</span>
+        <span class="chip">Vite 7</span>
+        <span class="chip">Axios 1.6</span>
+        <span class="chip">React Router v6</span>
+      </div>
+    </div>
+
+    <!-- ② SECURITY / AUTH -->
+    <div class="layer sec">
+      <div class="layer-title">② SECURITY &amp; AUTH</div>
+
+      <div class="card">
+        <div class="card-title">SecurityConfig.java</div>
+        <div class="mono">
+          CSRF: disabled<br>
+          CORS: localhost:5173<br>
+          Session: STATELESS<br>
+          /api/auth/** → permitAll<br>
+          /api/products/** → permitAll<br>
+          /swagger-ui/** → permitAll<br>
+          /api/admin/** → ADMIN<br>
+          /api/seller/** → SELLER/ADMIN<br>
+          /api/buyer/** → BUYER/ADMIN<br>
+          anyRequest → authenticated
+        </div>
+      </div>
+
+      <div class="card dark">
+        <div class="card-title">JwtAuthenticationFilter</div>
+        <div class="mono">
+          extends OncePerRequestFilter<br>
+          1. Read Authorization header<br>
+          2. Extract JWT (strip "Bearer ")<br>
+          3. extractUsername() → email<br>
+          4. loadUserByUsername()<br>
+          5. validateToken(): sig + expiry<br>
+          6. getRoleFromToken() → role<br>
+          7. Set SecurityContextHolder<br>
+           with ROLE_&lt;SELLER/BUYER/ADMIN&gt;
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">JwtUtil.java</div>
+        <div class="mono">
+          Algorithm: HMAC-SHA256<br>
+          Subject: user email<br>
+          Custom claim: "role"<br>
+          generateToken(userDetails, role)<br>
+          validateToken(token, userDetails)<br>
+          getRoleFromToken(token)
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">BCryptPasswordEncoder</div>
+        <div class="mono">
+          Hashes passwords on register<br>
+          passwordEncoder.matches()<br>
+          on login comparison
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">CustomUserDetailsService</div>
+        <div class="mono">
+          loadUserByUsername(email)<br>
+          → UserRepository.findByEmail()<br>
+          → Spring UserDetails object
+        </div>
+      </div>
+
+      <div class="card danger">
+        <div class="card-title">401 Unauthorized</div>
+        <div class="mono">No token or expired token<br>→ filter passes through unauthenticated</div>
+      </div>
+      <div class="card warn">
+        <div class="card-title">403 Forbidden</div>
+        <div class="mono">Valid token, wrong role<br>@PreAuthorize fails → AccessDenied</div>
+      </div>
+
+      <div class="chip-row">
+        <span class="chip">Spring Security 6</span>
+        <span class="chip">jjwt 0.12.3</span>
+        <span class="chip">BCrypt</span>
+        <span class="chip">@EnableMethodSecurity</span>
+      </div>
+    </div>
+
+    <!-- ③ BACKEND -->
+    <div class="layer be">
+      <div class="layer-title">③ BACKEND — Spring Boot 3.5.7</div>
+      <div class="mono" style="text-align:center;margin-bottom:10px">localhost:8080 · Java 21 · Maven</div>
+
+      <div class="be-cols">
+        <div>
+          <div class="be-col-title">@Controller</div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">AuthController<br>/api/auth<br>POST /register<br>POST /login</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">ProductController<br>/api/products<br>GET (public)<br>POST PUT DEL<br>(SELLER/ADMIN)</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">OrderController<br>/api/orders<br>POST /add<br>GET /buyer/{id}<br>GET /history/{id}<br>PUT /cancel/{id}</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">PaymentController<br>/api/payments<br>POST<br>POST /gateway<br>GET /seller/{id}</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">InvoiceController<br>/api/invoices<br>GET /order/{id}<br>→ PDF byte[]</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">AdminController<br>/api/admin<br>GET /dashboard<br>CRUD users<br>CRUD products<br>GET orders<br>GET payments</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="be-col-title">@Service</div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">UserServiceImpl<br>@Transactional<br>register()<br>→ BCrypt.encode()<br>→ save(user)<br>→ generateToken()<br><br>login()<br>→ findByEmail()<br>→ matches()<br>→ generateToken()</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">OrderServiceImpl<br>@Transactional<br>placeOrder()<br>→ status=PLACED<br>→ save()<br><br>cancelOrder()<br>→ status=CANCELLED<br><br>getOrdersByBuyer()<br>getOrderHistory()</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">ProductServiceImpl<br>addProduct()<br>updateProduct()<br>deleteProduct()<br>getAllProducts()</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">PaymentServiceImpl<br>makePayment()<br>processPaymentWithGateway()<br>getAllPayments()<br>getPaymentsBySeller()</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">InvoiceServiceImpl<br>generateInvoice(order)<br>→ iTextPDF tables<br>→ ByteArrayOutputStream</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">OrderItemServiceImpl<br>PaymentGatewayServiceImpl</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="be-col-title">@Repository</div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">UserRepository<br>findByEmail()<br>existsByEmail()</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">OrderRepository<br>findByBuyer_UserId()<br>findByBuyer_UserIdAndStatusNot()</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">ProductRepository<br>JpaRepository&lt;Product,Long&gt;</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">PaymentRepository<br>findAll()<br>JpaRepository&lt;Payment,Long&gt;</div>
+          </div>
+          <div class="card" style="margin-bottom:6px">
+            <div class="mono">OrderItemRepository<br>JpaRepository&lt;OrderItem,Long&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chip-row">
+        <span class="chip">Spring Data JPA</span>
+        <span class="chip">Hibernate ORM</span>
+        <span class="chip">ModelMapper 3.2.5</span>
+        <span class="chip">iTextPDF 8.0.2</span>
+        <span class="chip">Swagger/OpenAPI 2.8.14</span>
+        <span class="chip">Lombok</span>
+      </div>
+    </div>
+
+    <!-- ④ DATABASE -->
+    <div class="layer db">
+      <div class="layer-title">④ DATABASE</div>
+
+      <div class="db-cyl">
+        <div class="cyl-symbol">🛢</div>
+        <div class="mono">MySQL 8.0 · localhost:3306<br>crafteva_db</div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-name">users</div>
+        <div class="col-row"><span class="pk">PK user_id</span> BIGINT AI</div>
+        <div class="col-row">user_name · user_email</div>
+        <div class="col-row">user_password (BCrypt hash)</div>
+        <div class="col-row">mobile_no · user_address</div>
+        <div class="col-row">role ENUM(SELLER,BUYER,ADMIN)</div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-name">products</div>
+        <div class="col-row"><span class="pk">PK product_id</span> BIGINT AI</div>
+        <div class="col-row">product_name · description</div>
+        <div class="col-row">price DOUBLE · image_URL</div>
+        <div class="col-row">category ENUM(HANDMADE_JEWELRY ...)</div>
+        <div class="col-row"><span class="fk">FK seller_id → users</span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-name">orders</div>
+        <div class="col-row"><span class="pk">PK order_id</span> BIGINT AI</div>
+        <div class="col-row">order_date DATE · total_amount</div>
+        <div class="col-row">status ENUM(PLACED,CANCELLED,</div>
+        <div class="col-row">&nbsp;&nbsp;COMPLETED,DELIVERED)</div>
+        <div class="col-row"><span class="fk">FK buyer_id → users</span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-name">orderItems</div>
+        <div class="col-row"><span class="pk">PK order_item_id</span> BIGINT AI</div>
+        <div class="col-row">quantity INT · price DOUBLE</div>
+        <div class="col-row"><span class="fk">FK product_id → products</span></div>
+        <div class="col-row"><span class="fk">FK order_id → orders</span></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-name">payment</div>
+        <div class="col-row"><span class="pk">PK payment_id</span> BIGINT AI</div>
+        <div class="col-row">amount DOUBLE</div>
+        <div class="col-row">payment_status ENUM</div>
+        <div class="col-row">transaction_id VARCHAR UNIQUE</div>
+        <div class="col-row">payment_date DATETIME</div>
+        <div class="col-row"><span class="fk">FK order_id → orders</span> (1:1)</div>
+        <div class="col-row"><span class="fk">FK seller_id → users</span></div>
+      </div>
+
+      <div class="chip-row">
+        <span class="chip">MySQL 8.0</span>
+        <span class="chip">JPA/Hibernate</span>
+        <span class="chip">ddl-auto: update</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response arrow -->
+  <div style="max-width:1400px;margin:16px auto">
+    <div class="resp-arrow">
+      <span class="resp-label">← ← ← Response flows back: JSON + HTTP Status (200 OK / 201 Created / 400 Bad Request / 401 Unauthorized / 403 Forbidden / 404 Not Found / 500 Internal Server Error) ← ← ←</span>
+    </div>
+  </div>
+
+</div><!-- end diagram tab -->
+
+<!-- ============================================================ HOW TO DRAW TAB -->
+<div id="htd" class="tab-pane">
+  <h2 style="text-align:center;margin-bottom:16px">✏️ How to Draw This on a Whiteboard</h2>
+  <p style="text-align:center;font-family:'Share Tech Mono',monospace;margin-bottom:20px;font-size:.85rem">Draw 4 vertical boxes left → right. Total time: ~90 seconds to sketch.</p>
+
+  <div class="htd-grid">
+    <div class="step-card">
+      <div class="step-num-big">① FRAME</div>
+      <h3>Draw the 4 main boxes</h3>
+      <div class="what-label">WHAT TO DRAW</div>
+      <p>Draw 4 large equal rectangles across the board, side by side. Label them: <b>FRONTEND</b> (blue), <b>SECURITY</b> (pink), <b>BACKEND</b> (green), <b>DATABASE</b> (yellow). Add a horizontal arrow pointing right across all boxes at the top labelled "HTTP Request flow →".</p>
+      <div class="say-label">WHAT TO SAY</div>
+      <div class="say-box">"CraftEva follows a classic multi-tier architecture — React frontend, Spring Security layer, Spring Boot backend, and MySQL database, all communicating over HTTP with JWT tokens."</div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num-big">② FRONTEND</div>
+      <h3>Fill the React layer</h3>
+      <div class="what-label">WHAT TO DRAW</div>
+      <p>Inside FRONTEND box: draw a browser mockup outline. List pages: <i>Home, Login, Register, Cart, Payment, Orders, SellerDashboard, AdminDashboard</i>. Add a dark box labelled "Axios — Bearer Token" and a box labelled "AuthContext → localStorage".</p>
+      <div class="say-label">WHAT TO SAY</div>
+      <div class="say-box">"The React frontend stores the JWT in localStorage, attaches it to every Axios request, and uses AuthContext to share auth state. Routes are protected based on the role decoded from the token."</div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num-big">③ SECURITY</div>
+      <h3>Draw the JWT chain</h3>
+      <div class="what-label">WHAT TO DRAW</div>
+      <p>Inside SECURITY box: draw a thick dark box "JwtAuthenticationFilter → OncePerRequestFilter". Below it: "JwtUtil: HMAC-SHA256, claims={email, role}". Add a small red box "401" (no token) and purple box "403" (wrong role). Write "BCrypt.matches()" in a separate small box.</p>
+      <div class="say-label">WHAT TO SAY</div>
+      <div class="say-box">"Every request goes through JwtAuthenticationFilter first. It extracts the Bearer token, validates the signature and expiry with JwtUtil, reads the role claim, and sets the SecurityContextHolder — only then does it reach any controller."</div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num-big">④ BACKEND</div>
+      <h3>Draw the 3-column MVC</h3>
+      <div class="what-label">WHAT TO DRAW</div>
+      <p>Split the BACKEND box into 3 narrow columns with dashed vertical lines: <b>@Controller</b> | <b>@Service</b> | <b>@Repository</b>. List controllers in column 1, services in column 2, repositories in column 3. Add a bracket on OrderServiceImpl labelled "@Transactional".</p>
+      <div class="say-label">WHAT TO SAY</div>
+      <div class="say-box">"The backend uses standard MVC — thin controllers, fat services, repository layer using Spring Data JPA. Services are marked @Transactional wherever we do multiple database writes — like placeOrder which saves the order and links order items atomically."</div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num-big">⑤ DATABASE</div>
+      <h3>Draw the 5 tables</h3>
+      <div class="what-label">WHAT TO DRAW</div>
+      <p>Draw a database cylinder at the top. Below it, draw 5 stacked cards: <b>users</b>, <b>products</b> (FK: seller_id→users), <b>orders</b> (FK: buyer_id→users), <b>orderItems</b> (FK: product_id, order_id), <b>payment</b> (FK: order_id [1:1], seller_id). Mark PKs in gold, FKs in blue.</p>
+      <div class="say-label">WHAT TO SAY</div>
+      <div class="say-box">"We have 5 core tables. Users is a single table with a role column — one table for buyers, sellers, and admins. payment has a 1-to-1 with orders, and orderItems is the junction table between orders and products."</div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-num-big">⑥ CONNECT</div>
+      <h3>Draw arrows &amp; number the journey</h3>
+      <div class="what-label">WHAT TO DRAW</div>
+      <p>Draw solid arrows → between boxes labelled: ① "HTTP + Bearer JWT" → ② "validateToken()" → ③ "DTO + Service call" → ④ "SQL". Then draw a long curved dashed arrow ← along the bottom labelled "Response: JSON + HTTP Status (200/201/401/403/404/500)".</p>
+      <div class="say-label">WHAT TO SAY</div>
+      <div class="say-box">"The request flows left to right through all four layers, and the response flows back as JSON with the appropriate HTTP status code — 200 for success, 201 for resource created, 401 when the token is missing or expired, 403 when the role is wrong."</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function show(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

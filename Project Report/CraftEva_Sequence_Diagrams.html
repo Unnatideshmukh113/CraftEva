@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CraftEva — Sequence Diagrams</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Kalam', cursive;
+            background: #f8f4ec;
+            min-height: 100vh;
+            background-image: linear-gradient(rgba(0, 0, 0, .04) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, .04) 1px, transparent 1px);
+            background-size: 30px 30px;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 1.9rem;
+            color: #1a1a2e;
+            margin-bottom: 6px
+        }
+
+        .subtitle {
+            text-align: center;
+            font-family: 'Share Tech Mono', monospace;
+            color: #555;
+            margin-bottom: 18px;
+            font-size: .82rem
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 22px
+        }
+
+        .tab-btn {
+            font-family: 'Kalam', cursive;
+            font-size: .9rem;
+            padding: 7px 16px;
+            border: 2.5px solid #1a1a2e;
+            border-radius: 10px;
+            background: #fffef9;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 #1a1a2e;
+            transition: all .15s
+        }
+
+        .tab-btn.active {
+            background: #1a1a2e;
+            color: #fff
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #e8e4dc
+        }
+
+        .tab-pane {
+            display: none
+        }
+
+        .tab-pane.active {
+            display: block
+        }
+
+        /* sequence diagram */
+        .seq-wrap {
+            max-width: 1100px;
+            margin: 0 auto
+        }
+
+        /* Actors */
+        .actors {
+            display: flex;
+            gap: 0;
+            margin-bottom: 0
+        }
+
+        .actor {
+            flex: 1;
+            text-align: center
+        }
+
+        .actor-box {
+            display: inline-block;
+            border: 2.5px solid #1a1a2e;
+            border-radius: 10px;
+            box-shadow: 5px 5px 0 #1a1a2e;
+            padding: 8px 10px;
+            font-weight: 700;
+            font-size: .85rem;
+            min-width: 90px;
+            max-width: 130px
+        }
+
+        .a-fe {
+            background: #dbeafe;
+            color: #1e3a8a
+        }
+
+        .a-flt {
+            background: #fce7f3;
+            color: #9d174d
+        }
+
+        .a-jwt {
+            background: #f5f0ff;
+            color: #5b21b6
+        }
+
+        .a-auth {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .a-usvc {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .a-osvc {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .a-psvc {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .a-isvc {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .a-asvc {
+            background: #d1fae5;
+            color: #065f46
+        }
+
+        .a-urepo {
+            background: #fef3c7;
+            color: #92400e
+        }
+
+        .a-orepo {
+            background: #fef3c7;
+            color: #92400e
+        }
+
+        .a-prepo {
+            background: #fef3c7;
+            color: #92400e
+        }
+
+        .a-db {
+            background: #1a1a2e;
+            color: #f8f4ec
+        }
+
+        /* Steps */
+        .steps {
+            position: relative
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 4px;
+            padding: 3px 0
+        }
+
+        .step-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #1a1a2e;
+            color: #fff;
+            font-size: .75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        .arrow-row {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            gap: 0
+        }
+
+        .lifeline-spacer {
+            flex: 1;
+            border-top: 1.5px dashed rgba(0, 0, 0, .15);
+            min-width: 0;
+            opacity: 0
+        }
+
+        .arrow-line {
+            flex: 1;
+            position: relative;
+            min-width: 30px
+        }
+
+        .solid-line {
+            border-top: 2px solid #1a1a2e
+        }
+
+        .dash-line {
+            border-top: 2px dashed #1a1a2e
+        }
+
+        .arr-right::after {
+            content: '▶';
+            position: absolute;
+            right: -2px;
+            top: -10px;
+            font-size: .85rem;
+            color: #1a1a2e
+        }
+
+        .arr-left::after {
+            content: '◀';
+            position: absolute;
+            left: -2px;
+            top: -10px;
+            font-size: .85rem;
+            color: #1a1a2e
+        }
+
+        .arr-label-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .68rem;
+            text-align: center;
+            white-space: nowrap;
+            background: #f8f4ec;
+            padding: 1px 4px;
+            border-radius: 4px;
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            color: #1a1a2e
+        }
+
+        .note-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .7rem;
+            color: #555;
+            padding: 4px 8px;
+            background: #ffe;
+            border: 1.5px dashed #999;
+            border-radius: 6px;
+            margin-bottom: 4px
+        }
+
+        /* ALT block */
+        .alt-block {
+            border: 2px dashed #ef4444;
+            border-radius: 8px;
+            padding: 8px;
+            margin: 6px 0;
+            background: #fff5f5
+        }
+
+        .alt-header {
+            font-size: .75rem;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 4px;
+            font-family: 'Share Tech Mono', monospace
+        }
+
+        /* Transaction bracket */
+        .tx-wrap {
+            position: relative;
+            border-left: 3px solid #f59e0b;
+            padding-left: 10px;
+            margin: 4px 0
+        }
+
+        .tx-label {
+            font-size: .72rem;
+            color: #92400e;
+            font-weight: 700;
+            font-family: 'Share Tech Mono', monospace;
+            margin-bottom: 3px
+        }
+
+        /* Key points + say box */
+        .kp-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 16px
+        }
+
+        .kp-card {
+            background: #fffef9;
+            border: 2.5px solid #1a1a2e;
+            border-radius: 10px;
+            box-shadow: 4px 4px 0 #1a1a2e;
+            padding: 10px;
+            font-size: .82rem
+        }
+
+        .kp-card h4 {
+            margin-bottom: 5px;
+            font-size: .88rem
+        }
+
+        .say-box {
+            margin-top: 12px;
+            background: #1a1a2e;
+            color: #f8f4ec;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: .85rem;
+            line-height: 1.6
+        }
+
+        .say-box .label {
+            font-size: .7rem;
+            font-family: 'Share Tech Mono', monospace;
+            color: #94a3b8;
+            margin-bottom: 4px
+        }
+
+        /* Simpler step list approach for clarity */
+        .step-list {
+            list-style: none;
+            margin: 0;
+            padding: 0
+        }
+
+        .step-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px dashed rgba(0, 0, 0, .08)
+        }
+
+        .step-list li:last-child {
+            border-bottom: none
+        }
+
+        .sn {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            font-size: .7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 2px
+        }
+
+        .sn.req {
+            background: #1e3a8a;
+            color: #fff
+        }
+
+        .sn.res {
+            background: #065f46;
+            color: #fff
+        }
+
+        .sn.err {
+            background: #be185d;
+            color: #fff
+        }
+
+        .sn.tx {
+            background: #92400e;
+            color: #fff
+        }
+
+        .step-content {
+            flex: 1
+        }
+
+        .step-from {
+            font-size: .72rem;
+            color: #555;
+            font-family: 'Share Tech Mono', monospace
+        }
+
+        .step-msg {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .79rem;
+            color: #1a1a2e;
+            margin: 2px 0
+        }
+
+        .step-note {
+            font-size: .75rem;
+            color: #666;
+            font-style: italic
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: .65rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            margin-left: 4px;
+            font-style: normal
+        }
+
+        .tag.get {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7
+        }
+
+        .tag.post {
+            background: #dbeafe;
+            color: #1e3a8a;
+            border: 1px solid #93c5fd
+        }
+
+        .tag.put {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fcd34d
+        }
+
+        .tag.ret {
+            background: #f5f0ff;
+            color: #5b21b6;
+            border: 1px solid #c4b5fd
+        }
+
+        .tag.err {
+            background: #fce7f3;
+            color: #9d174d;
+            border: 1px solid #f9a8d4
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔄 CraftEva — Sequence Diagrams</h1>
+    <p class="subtitle">Every flow uses real class names, method names, and exact endpoint paths from the CraftEva
+        codebase.</p>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="show('login',this)">① Login &amp; JWT</button>
+        <button class="tab-btn" onclick="show('register',this)">② Register</button>
+        <button class="tab-btn" onclick="show('order',this)">③ Place Order</button>
+        <button class="tab-btn" onclick="show('cancel',this)">④ Cancel Order</button>
+        <button class="tab-btn" onclick="show('invoice',this)">⑤ Invoice PDF</button>
+        <button class="tab-btn" onclick="show('errors',this)">⑥ Error Flows</button>
+    </div>
+
+    <!-- ======================== FLOW 1: LOGIN -->
+    <div id="login" class="tab-pane active">
+        <div class="seq-wrap">
+            <h2 style="text-align:center;margin-bottom:14px">① Login + JWT Authentication Flow</h2>
+
+            <!-- Actors display -->
+            <div class="actors" style="margin-bottom:16px">
+                <div class="actor">
+                    <div class="actor-box a-fe">Browser<br>(React)</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-flt">JwtAuthentication<br>Filter</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-auth">AuthController</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-usvc">UserServiceImpl</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-jwt">JwtUtil</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-urepo">UserRepository</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-db">MySQL DB</div>
+                </div>
+            </div>
+
+            <ul class="step-list">
+                <li>
+                    <div class="sn req">1</div>
+                    <div class="step-content">
+                        <div class="step-from">Browser → AuthController</div>
+                        <div class="step-msg">POST /api/auth/login<span class="tag post">POST</span></div>
+                        <div class="step-msg">Body: <span
+                                style="color:#065f46">{"email":"user@email.com","password":"mypassword"}</span></div>
+                        <div class="step-note">JwtAuthenticationFilter sees /api/auth/** → permitAll → passes directly
+                            through without token check</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">2</div>
+                    <div class="step-content">
+                        <div class="step-from">AuthController → UserServiceImpl</div>
+                        <div class="step-msg">service.login(LoginRequest req)</div>
+                        <div class="step-note">@Valid validates: email not blank, password not blank</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">3</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl → UserRepository → MySQL</div>
+                        <div class="step-msg">userRepository.findByEmail("user@email.com")</div>
+                        <div class="step-msg">SELECT * FROM users WHERE user_email = 'user@email.com'</div>
+                        <div class="step-note">Returns Optional&lt;User&gt; — throws RuntimeException("Invalid email")
+                            if empty</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">4</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl — password check</div>
+                        <div class="step-msg">passwordEncoder.matches("mypassword", user.getPassword())</div>
+                        <div class="step-note">BCrypt verifies raw password against stored BCrypt hash. Throws
+                            RuntimeException("Invalid password") if false.</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">5</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl → JwtUtil</div>
+                        <div class="step-msg">jwtUtil.generateToken(userDetails, "BUYER")</div>
+                        <div class="step-note">Creates JWT: Header.Payload.Signature — payload includes {sub: email,
+                            role: "BUYER", iat, exp}</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn res">6</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl → AuthController → Browser</div>
+                        <div class="step-msg">200 OK — AuthResponse<span class="tag ret">RETURN</span></div>
+                        <div class="step-msg">Body: <span
+                                style="color:#065f46">{"token":"eyJ...","email":"user@email.com","role":"BUYER","userId":42}</span>
+                        </div>
+                        <div class="step-note">Frontend: localStorage.setItem("token", token) — AuthContext stores
+                            {token, role, userId}</div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="alt-block">
+                <div class="alt-header">ALT — Error Paths</div>
+                <ul class="step-list">
+                    <li>
+                        <div class="sn err">E1</div>
+                        <div class="step-content">
+                            <div class="step-msg">User not found: RuntimeException("Invalid email") → 500 (should be
+                                401)</div>
+                            <div class="step-note">Email does not exist in users table</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sn err">E2</div>
+                        <div class="step-content">
+                            <div class="step-msg">Wrong password: RuntimeException("Invalid password") → 500 (should be
+                                401)</div>
+                            <div class="step-note">BCrypt.matches() returns false</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="kp-grid">
+                <div class="kp-card">
+                    <h4>🔑 Why JWT over sessions?</h4>JWT is stateless — the server stores no session data. Any server
+                    instance can validate a token using just the secret key, making this horizontally scalable. Sessions
+                    require shared state (e.g. Redis) across servers.
+                </div>
+                <div class="kp-card">
+                    <h4>🔒 Why BCrypt?</h4>BCrypt is a one-way adaptive hash — it includes a salt and a cost factor.
+                    Unlike SHA-256, it's intentionally slow and resists brute-force. Even if the DB is leaked, passwords
+                    can't be reversed.
+                </div>
+                <div class="kp-card">
+                    <h4>📦 Why store role in JWT claims?</h4>The JwtAuthenticationFilter reads the "role" custom claim
+                    to set the ROLE_BUYER authority. This way no DB lookup is needed on every request — everything
+                    needed for authorization is inside the token.
+                </div>
+                <div class="kp-card">
+                    <h4>⚙️ permitAll on /api/auth/**</h4>SecurityConfig marks the entire /api/auth/** path as public —
+                    JwtAuthenticationFilter still runs but passes through if no token, so login works without requiring
+                    a token.
+                </div>
+            </div>
+
+            <div class="say-box">
+                <div class="label">🎤 SAY IN INTERVIEW:</div>
+                "On login, the user sends email and password. My UserServiceImpl fetches the user, compares the password
+                using BCrypt's matches() method, and if valid, calls JwtUtil.generateToken() which creates an
+                HMAC-SHA256 signed token with the user's email as the subject and their role as a custom claim. This
+                token is returned to the frontend and stored in localStorage. Every subsequent request attaches this
+                token in the Authorization header, and my JwtAuthenticationFilter validates it before any controller is
+                reached."
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== FLOW 2: REGISTER -->
+    <div id="register" class="tab-pane">
+        <div class="seq-wrap">
+            <h2 style="text-align:center;margin-bottom:14px">② User Registration Flow</h2>
+
+            <div class="actors" style="margin-bottom:16px">
+                <div class="actor">
+                    <div class="actor-box a-fe">Browser<br>(Register.jsx)</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-flt">JwtAuthentication<br>Filter</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-auth">AuthController</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-usvc">UserServiceImpl</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-jwt">JwtUtil / BCrypt</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-urepo">UserRepository</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-db">MySQL DB</div>
+                </div>
+            </div>
+
+            <ul class="step-list">
+                <li>
+                    <div class="sn req">1</div>
+                    <div class="step-content">
+                        <div class="step-from">Browser → AuthController</div>
+                        <div class="step-msg">POST /api/auth/register<span class="tag post">POST</span></div>
+                        <div class="step-msg">Body: <span
+                                style="color:#065f46">{"name":"Priya","email":"priya@email.com","password":"secret123","mobile":"9876543210","address":"Pune","role":"BUYER"}</span>
+                        </div>
+                        <div class="step-note">/api/auth/** is permitAll — JwtFilter passes through</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">2</div>
+                    <div class="step-content">
+                        <div class="step-from">AuthController → UserServiceImpl</div>
+                        <div class="step-msg">@Valid @RequestBody RegisterRequest → service.register(req)</div>
+                        <div class="step-note">Bean validation checks all @NotBlank/@NotNull fields before reaching
+                            service</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">3</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl → UserRepository</div>
+                        <div class="step-msg">userRepository.existsByEmail("priya@email.com")</div>
+                        <div class="step-msg">SELECT COUNT(*) FROM users WHERE user_email = 'priya@email.com'</div>
+                        <div class="step-note">Duplicate email check — throws RuntimeException("Email already
+                            registered") if true</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">4</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl → BCryptPasswordEncoder</div>
+                        <div class="step-msg">passwordEncoder.encode("secret123") → "$2a$10$..."</div>
+                        <div class="step-note">BCrypt hash stored in user_password column — raw password is never saved
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">5</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl → UserRepository → MySQL</div>
+                        <div class="step-msg">userRepository.save(user)</div>
+                        <div class="step-msg">INSERT INTO users (user_name, user_email, user_password, mobile_no,
+                            user_address, role) VALUES (...)</div>
+                        <div class="step-note">Returns saved User entity with auto-generated userId</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">6</div>
+                    <div class="step-content">
+                        <div class="step-from">UserServiceImpl → JwtUtil</div>
+                        <div class="step-msg">jwtUtil.generateToken(userDetails, "BUYER")</div>
+                        <div class="step-note">Registration immediately logs in the user — token generated right after
+                            save</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn res">7</div>
+                    <div class="step-content">
+                        <div class="step-from">→ Browser</div>
+                        <div class="step-msg">200 OK — AuthResponse<span class="tag ret">RETURN</span></div>
+                        <div class="step-msg">Body: <span
+                                style="color:#065f46">{"token":"eyJ...","email":"priya@email.com","role":"BUYER","userId":43}</span>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="alt-block">
+                <div class="alt-header">ALT — Error: Duplicate Email</div>
+                <ul class="step-list">
+                    <li>
+                        <div class="sn err">E1</div>
+                        <div class="step-content">
+                            <div class="step-msg">existsByEmail() returns true → throw RuntimeException("Email already
+                                registered")</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="say-box">
+                <div class="label">🎤 SAY IN INTERVIEW:</div>
+                "Registration first checks for duplicate emails using existsByEmail(). If the email is new, we
+                BCrypt-encode the password before saving — the raw password is never stored. After saving, we
+                immediately generate a JWT so the user is logged in right after registering, and we return the token
+                along with their role and userId."
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== FLOW 3: PLACE ORDER -->
+    <div id="order" class="tab-pane">
+        <div class="seq-wrap">
+            <h2 style="text-align:center;margin-bottom:14px">③ Place Order Flow (Most Important)</h2>
+
+            <div class="actors" style="margin-bottom:16px">
+                <div class="actor">
+                    <div class="actor-box a-fe">Browser<br>(Cart.jsx / Payment.jsx)</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-flt">JwtFilter</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-auth">OrderController</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-osvc">OrderServiceImpl<br>@Transactional</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-urepo">UserRepository</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-orepo">OrderRepository</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-db">MySQL DB</div>
+                </div>
+            </div>
+
+            <ul class="step-list">
+                <li>
+                    <div class="sn req">1</div>
+                    <div class="step-content">
+                        <div class="step-from">Browser → JwtFilter</div>
+                        <div class="step-msg">POST /api/orders/add<span class="tag post">POST</span></div>
+                        <div class="step-msg">Header: <span class="mono">Authorization: Bearer
+                                eyJ0eXAiOiJKV1QiLCJhbGci...</span></div>
+                        <div class="step-msg">Body: <span
+                                style="color:#065f46">{"buyer":{"userId":42},"totalAmount":850.00,"orderItems":[...]}</span>
+                        </div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">2</div>
+                    <div class="step-content">
+                        <div class="step-from">JwtAuthenticationFilter</div>
+                        <div class="step-msg">extractUsername(jwt) → "buyer@email.com"</div>
+                        <div class="step-msg">validateToken(jwt, userDetails) → true</div>
+                        <div class="step-msg">getRoleFromToken(jwt) → "BUYER"</div>
+                        <div class="step-msg">Set SecurityContextHolder with authority ROLE_BUYER</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">3</div>
+                    <div class="step-content">
+                        <div class="step-from">OrderController</div>
+                        <div class="step-msg">@PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")</div>
+                        <div class="step-note">@Valid validates OrderDto before entering service</div>
+                        <div class="step-msg">service.placeOrder(orderDto)</div>
+                    </div>
+                </li>
+                <div class="tx-wrap">
+                    <div class="tx-label">@Transactional BEGIN</div>
+                    <li>
+                        <div class="sn req">4</div>
+                        <div class="step-content">
+                            <div class="step-from">OrderServiceImpl → UserRepository → MySQL</div>
+                            <div class="step-msg">userRepository.findById(42L) → Optional&lt;User&gt; buyer</div>
+                            <div class="step-msg">SELECT * FROM users WHERE user_id = 42</div>
+                            <div class="step-note">Throws RuntimeException("Buyer not found") if not present</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sn req">5</div>
+                        <div class="step-content">
+                            <div class="step-from">OrderServiceImpl — Build Order entity</div>
+                            <div class="step-msg">order.setOrderDate(LocalDate.now())</div>
+                            <div class="step-msg">order.setStatus(OrderStatus.PLACED)</div>
+                            <div class="step-msg">order.setTotalAmount(850.00)</div>
+                            <div class="step-msg">order.setBuyer(buyer)</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sn req">6</div>
+                        <div class="step-content">
+                            <div class="step-from">OrderServiceImpl → OrderRepository → MySQL</div>
+                            <div class="step-msg">orderRepository.save(order)</div>
+                            <div class="step-msg">INSERT INTO orders (order_date, status, total_amount, buyer_id) VALUES
+                                ('2026-02-27', 'PLACED', 850.00, 42)</div>
+                            <div class="step-note">Returns saved Order with auto-generated orderId = 101</div>
+                        </div>
+                    </li>
+                </div>
+                <li>
+                    <div class="sn res">7</div>
+                    <div class="step-content">
+                        <div class="step-from">→ Browser</div>
+                        <div class="step-msg">200 OK — OrderDto<span class="tag ret">RETURN</span></div>
+                        <div class="step-msg">Body: <span
+                                style="color:#065f46">{"orderId":101,"orderDate":"2026-02-27","status":"PLACED","totalAmount":850.00,"buyer":{...}}</span>
+                        </div>
+                        <div class="step-note">Frontend navigates to Orders page — user can now download invoice from
+                            GET /api/invoices/order/101</div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="alt-block">
+                <div class="alt-header">ALT — Error Paths</div>
+                <ul class="step-list">
+                    <li>
+                        <div class="sn err">E1</div>
+                        <div class="step-content">
+                            <div class="step-msg">No token / expired token → 401 (JwtFilter does not set SecurityContext
+                                → Spring Security blocks)</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sn err">E2</div>
+                        <div class="step-content">
+                            <div class="step-msg">Token has role=SELLER → 403 Forbidden
+                                (@PreAuthorize("hasRole('BUYER')...") fails)</div>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="sn err">E3</div>
+                        <div class="step-content">
+                            <div class="step-msg">buyerId not found in DB → RuntimeException("Buyer not found") →
+                                @Transactional rolls back</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="kp-grid">
+                <div class="kp-card">
+                    <h4>🔄 Why @Transactional?</h4>The entire placeOrder() method is wrapped in a DB transaction. If
+                    anything fails after the order is INSERTed, JPA rolls back ALL changes — preventing orphaned
+                    incomplete order records.
+                </div>
+                <div class="kp-card">
+                    <h4>📋 DTO Pattern</h4>We never expose the raw Order entity to the frontend. OrderDto controls
+                    exactly what fields are sent — preventing accidental exposure of sensitive fields and circular JSON
+                    references.
+                </div>
+                <div class="kp-card">
+                    <h4>🔐 @PreAuthorize</h4>@PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')") checks the authority
+                    in SecurityContextHolder — set by JwtAuthenticationFilter using the role claim from the JWT.
+                </div>
+                <div class="kp-card">
+                    <h4>📅 LocalDate vs LocalDateTime</h4>Order uses LocalDate for order_date (day precision). Payment
+                    uses LocalDateTime for payment_date (exact timestamp). Both are Hibernate-compatible without extra
+                    config in Spring Boot 3.
+                </div>
+            </div>
+
+            <div class="say-box">
+                <div class="label">🎤 SAY IN INTERVIEW:</div>
+                "When a buyer places an order, the request first goes through JwtAuthenticationFilter which validates
+                the token and sets the user's role. Then @PreAuthorize checks the role. In OrderServiceImpl, the
+                placeOrder() method is @Transactional — it fetches the buyer, creates the Order entity with status
+                PLACED, and saves it. If any step fails, the transaction automatically rolls back, ensuring no
+                incomplete order records in the database."
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== FLOW 4: CANCEL ORDER -->
+    <div id="cancel" class="tab-pane">
+        <div class="seq-wrap">
+            <h2 style="text-align:center;margin-bottom:14px">④ Cancel Order Flow</h2>
+
+            <div class="actors" style="margin-bottom:16px">
+                <div class="actor">
+                    <div class="actor-box a-fe">Browser<br>(Orders.jsx)</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-flt">JwtFilter</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-auth">OrderController</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-osvc">OrderServiceImpl<br>@Transactional</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-orepo">OrderRepository</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-db">MySQL DB</div>
+                </div>
+            </div>
+
+            <ul class="step-list">
+                <li>
+                    <div class="sn req">1</div>
+                    <div class="step-content">
+                        <div class="step-from">Browser → JwtFilter → OrderController</div>
+                        <div class="step-msg">PUT /api/orders/cancel/101<span class="tag put">PUT</span></div>
+                        <div class="step-msg">Header: <span class="mono">Authorization: Bearer eyJ...</span></div>
+                        <div class="step-note">JwtFilter validates token, sets ROLE_BUYER in SecurityContext</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">2</div>
+                    <div class="step-content">
+                        <div class="step-from">OrderController</div>
+                        <div class="step-msg">@PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")</div>
+                        <div class="step-msg">service.cancelOrder(101L)</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">3</div>
+                    <div class="step-content">
+                        <div class="step-from">OrderServiceImpl → OrderRepository → MySQL</div>
+                        <div class="step-msg">orderRepository.findById(101L)</div>
+                        <div class="step-msg">SELECT * FROM orders WHERE order_id = 101</div>
+                        <div class="step-note">Throws RuntimeException("Order not found") if not present</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">4</div>
+                    <div class="step-content">
+                        <div class="step-from">OrderServiceImpl — Update status</div>
+                        <div class="step-msg">order.setStatus(OrderStatus.CANCELLED)</div>
+                        <div class="step-msg">orderRepository.save(order)</div>
+                        <div class="step-msg">UPDATE orders SET status = 'CANCELLED' WHERE order_id = 101</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn res">5</div>
+                    <div class="step-content">
+                        <div class="step-from">→ Browser</div>
+                        <div class="step-msg">200 OK — Updated Order entity<span class="tag ret">RETURN</span></div>
+                        <div class="step-msg">Body: <span
+                                style="color:#065f46">{"orderId":101,"status":"CANCELLED",...}</span></div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="alt-block">
+                <div class="alt-header">ALT — Error: Order Not Found</div>
+                <ul class="step-list">
+                    <li>
+                        <div class="sn err">E1</div>
+                        <div class="step-content">
+                            <div class="step-msg">findById(101L) returns empty → RuntimeException("Order not found")
+                            </div>
+                            <div class="step-note">Currently no check for order status before cancellation — in
+                                production you would check if status == PLACED before allowing cancel</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="say-box">
+                <div class="label">🎤 SAY IN INTERVIEW:</div>
+                "To cancel an order, the buyer sends a PUT request with the order ID. OrderServiceImpl fetches the
+                order, changes the status to CANCELLED, and saves it. Since the method is @Transactional, if the save
+                fails for any reason, the status change is rolled back. A production improvement would be to add a
+                check: only allow cancellation if the current status is PLACED, not if it's already COMPLETED or
+                DELIVERED."
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== FLOW 5: INVOICE PDF -->
+    <div id="invoice" class="tab-pane">
+        <div class="seq-wrap">
+            <h2 style="text-align:center;margin-bottom:14px">⑤ PDF Invoice Generation Flow</h2>
+
+            <div class="actors" style="margin-bottom:16px">
+                <div class="actor">
+                    <div class="actor-box a-fe">Browser<br>(OrderHistory.jsx)</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-flt">JwtFilter</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-auth">InvoiceController</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-isvc">InvoiceServiceImpl<br>(iTextPDF)</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-orepo">OrderRepository</div>
+                </div>
+                <div class="actor">
+                    <div class="actor-box a-db">MySQL DB</div>
+                </div>
+            </div>
+
+            <ul class="step-list">
+                <li>
+                    <div class="sn req">1</div>
+                    <div class="step-content">
+                        <div class="step-from">Browser → JwtFilter → InvoiceController</div>
+                        <div class="step-msg">GET /api/invoices/order/101<span class="tag get">GET</span></div>
+                        <div class="step-msg">Header: <span class="mono">Authorization: Bearer eyJ...</span></div>
+                        <div class="step-note">@PreAuthorize("hasRole('BUYER') or hasRole('ADMIN')")</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">2</div>
+                    <div class="step-content">
+                        <div class="step-from">InvoiceController → OrderRepository → MySQL</div>
+                        <div class="step-msg">orderRepository.findById(101L)</div>
+                        <div class="step-msg">SELECT o.*, oi.*, u.* FROM orders o JOIN orderItems oi JOIN users u WHERE
+                            o.order_id=101</div>
+                        <div class="step-note">Throws RuntimeException("Order not found") if not present</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">3</div>
+                    <div class="step-content">
+                        <div class="step-from">InvoiceController → InvoiceServiceImpl</div>
+                        <div class="step-msg">invoiceService.generateInvoice(order)</div>
+                        <div class="step-note">iTextPDF 8.0.2 builds PDF document in-memory</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn req">4</div>
+                    <div class="step-content">
+                        <div class="step-from">InvoiceServiceImpl — builds PDF</div>
+                        <div class="step-msg">Creates Document → adds Table(order items, prices)</div>
+                        <div class="step-msg">→ Closes document into ByteArrayOutputStream</div>
+                    </div>
+                </li>
+                <li>
+                    <div class="sn res">5</div>
+                    <div class="step-content">
+                        <div class="step-from">InvoiceController → Browser</div>
+                        <div class="step-msg">200 OK — ResponseEntity&lt;byte[]&gt;<span class="tag ret">RETURN</span>
+                        </div>
+                        <div class="step-msg">Headers: Content-Type: application/pdf</div>
+                        <div class="step-msg">Content-Disposition: attachment; filename="invoice_101.pdf"</div>
+                        <div class="step-note">Browser triggers file download automatically</div>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="say-box">
+                <div class="label">🎤 SAY IN INTERVIEW:</div>
+                "Invoice generation uses iTextPDF 8.0.2. When the buyer requests GET /api/invoices/order/101,
+                InvoiceController fetches the order from the DB, passes it to InvoiceServiceImpl which builds a PDF
+                table in-memory using a ByteArrayOutputStream. The controller then returns a ResponseEntity with the
+                byte array, Content-Type: application/pdf, and Content-Disposition: attachment — so the browser
+                downloads it directly as a PDF file."
+            </div>
+        </div>
+    </div>
+
+    <!-- ======================== FLOW 6: ERROR FLOWS -->
+    <div id="errors" class="tab-pane">
+        <div class="seq-wrap">
+            <h2 style="text-align:center;margin-bottom:14px">⑥ Error Flows — 400 / 401 / 403 / 404 / 500</h2>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+                <div
+                    style="background:#fffef9;border:3px solid #ef4444;border-radius:14px;box-shadow:7px 7px 0 #ef4444;padding:14px">
+                    <h3 style="color:#be185d;margin-bottom:10px">401 Unauthorized</h3>
+                    <ul class="step-list">
+                        <li>
+                            <div class="sn err">1</div>
+                            <div class="step-content">
+                                <div class="step-msg">Request arrives with no Authorization header OR expired JWT</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">2</div>
+                            <div class="step-content">
+                                <div class="step-msg">JwtAuthenticationFilter: authHeader == null →
+                                    filterChain.doFilter() without setting SecurityContext</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">3</div>
+                            <div class="step-content">
+                                <div class="step-msg">Spring Security: protected endpoint + no auth → 401 Unauthorized
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">4</div>
+                            <div class="step-content">
+                                <div class="step-msg">Frontend Axios: catches 401 → clears localStorage →
+                                    navigate('/login')</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div
+                    style="background:#fffef9;border:3px solid #7c3aed;border-radius:14px;box-shadow:7px 7px 0 #7c3aed;padding:14px">
+                    <h3 style="color:#5b21b6;margin-bottom:10px">403 Forbidden</h3>
+                    <ul class="step-list">
+                        <li>
+                            <div class="sn err">1</div>
+                            <div class="step-content">
+                                <div class="step-msg">Request: Valid JWT but user has role=BUYER trying to reach POST
+                                    /api/products</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">2</div>
+                            <div class="step-content">
+                                <div class="step-msg">JwtFilter: sets SecurityContext with ROLE_BUYER</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">3</div>
+                            <div class="step-content">
+                                <div class="step-msg">@PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')") → evaluates
+                                    false</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">4</div>
+                            <div class="step-content">
+                                <div class="step-msg">AccessDeniedException → 403 Forbidden returned to client</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div
+                    style="background:#fffef9;border:3px solid #f59e0b;border-radius:14px;box-shadow:7px 7px 0 #f59e0b;padding:14px">
+                    <h3 style="color:#92400e;margin-bottom:10px">404 Not Found</h3>
+                    <ul class="step-list">
+                        <li>
+                            <div class="sn err">1</div>
+                            <div class="step-content">
+                                <div class="step-msg">GET /api/invoices/order/9999 — orderId 9999 does not exist</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">2</div>
+                            <div class="step-content">
+                                <div class="step-msg">orderRepository.findById(9999L) returns Optional.empty()</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">3</div>
+                            <div class="step-content">
+                                <div class="step-msg">.orElseThrow(() → RuntimeException("Order not found"))</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">4</div>
+                            <div class="step-content">
+                                <div class="step-msg">Unhandled → 500. Improvement: use custom NotFoundException → 404
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div
+                    style="background:#fffef9;border:3px solid #1a1a2e;border-radius:14px;box-shadow:7px 7px 0 #1a1a2e;padding:14px">
+                    <h3 style="color:#1a1a2e;margin-bottom:10px">400 Bad Request / 409 Conflict</h3>
+                    <ul class="step-list">
+                        <li>
+                            <div class="sn err">1</div>
+                            <div class="step-content">
+                                <div class="step-msg">400: POST /api/auth/register with blank email field → @Valid →
+                                    MethodArgumentNotValidException → 400</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">2</div>
+                            <div class="step-content">
+                                <div class="step-msg">409: POST /api/auth/register with email that already exists →
+                                    RuntimeException("Email already registered") → currently 500 (should be 409)</div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="sn err">3</div>
+                            <div class="step-content">
+                                <div class="step-msg">Improvement: Add @ControllerAdvice GlobalExceptionHandler to map
+                                    each exception type to correct HTTP status</div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="say-box" style="margin-top:16px">
+                <div class="label">🎤 SAY IN INTERVIEW:</div>
+                "401 means the token is missing or expired — no authentication at all. 403 means the token is valid but
+                the role is wrong — the user is authenticated but not authorized. In my app, 401 happens when
+                JwtAuthenticationFilter doesn't set the SecurityContext, and 403 happens when @PreAuthorize fails.
+                Currently my RuntimeExceptions map to 500 by default — an improvement would be a @ControllerAdvice
+                GlobalExceptionHandler to map ResourceNotFoundException to 404 and duplicate email to 409."
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function show(id, btn) {
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        }
+    </script>
+</body>
+
+</html>
