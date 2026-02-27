@@ -335,13 +335,7 @@ Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for gu
 **Unnati Deshmukh**  
 GitHub: [@Unnatideshmukh113](https://github.com/Unnatideshmukh113)
 
----
 
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
 
 <div align="center">
 Made with ❤️ by <a href="https://github.com/Unnatideshmukh113">Unnatideshmukh113</a>
