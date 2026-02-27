@@ -1,342 +1,408 @@
-# 🎨 CraftEva — Handcraft E-Commerce Marketplace
+# 🎨 CraftEva — Handmade Artisan E-Commerce Platform
 
-<div align="center">
-
-[![Java](https://img.shields.io/badge/Java-21-orange?style=for-the-badge&logo=openjdk)](https://openjdk.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen?style=for-the-badge&logo=spring)](https://spring.io/projects/spring-boot)
-[![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-blue?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
-
-**A full-stack marketplace platform connecting artisans and craft lovers — buy, sell, and manage handcrafted products with ease.**
-
-[📖 Documentation](#-getting-started) · [🚀 Deployment Guide](DEPLOYMENT.md) · [⚡ Quick Start](DEPLOYMENT_QUICKSTART.md) · [🤝 Contributing](CONTRIBUTING.md)
-
-</div>
+> A full-stack e-commerce marketplace for handmade & artisan products, built with **Spring Boot** and **React**.
 
 ---
 
 ## 📋 Table of Contents
 
-- [Project Overview](#-project-overview)
-- [Technology Stack](#-technology-stack)
-- [Features](#-features)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Authentication Flow](#-authentication-flow)
-- [API Documentation](#-api-documentation)
-- [Deployment](#-deployment)
-- [Contributing](#-contributing)
-- [License](#-license)
+- [About the Project](#about-the-project)
+- [Tech Stack](#tech-stack)
+- [Project Architecture](#project-architecture)
+- [Folder Structure](#folder-structure)
+- [Frontend](#frontend)
+- [Backend](#backend)
+- [API Endpoints](#api-endpoints)
+- [Database Schema](#database-schema)
+- [Setup & Installation](#setup--installation)
+- [Environment Variables](#environment-variables)
+- [How to Run](#how-to-run)
+- [Data Flow](#data-flow)
+- [Screenshots](#screenshots)
+- [Contributors](#contributors)
 
 ---
 
-## 🎯 Project Overview
+## 📖 About the Project
 
-CraftEva is a complete handcraft e-commerce marketplace solution. The platform provides:
+**CraftEva** is a multi-role e-commerce platform connecting artisan sellers with buyers looking for unique handmade products. The platform supports three user roles — **Buyer**, **Seller**, and **Admin** — each with tailored dashboards and features.
 
-- **Customer Portal** — Browse craft products, manage wishlist, add to cart, place orders, and track deliveries
-- **Seller Dashboard** — List and manage craft products, view incoming orders, track revenue
-- **Admin Dashboard** — Platform-wide management of users, products, and orders
-- **Secure Authentication** — JWT-based authentication with role-based access control (Customer, Seller, Admin)
-- **Invoice Generation** — Automatic PDF invoice generation for every completed order
-
----
-
-## 🛠️ Technology Stack
-
-### Backend
-| Technology | Version | Purpose |
-|---|---|---|
-| Java | 21 | Core language |
-| Spring Boot | 3.5.7 | Application framework |
-| Spring Security | Included | Authentication & authorization |
-| Spring Data JPA | Included | Database ORM layer |
-| MySQL | 8.0+ | Relational database |
-| JWT (jjwt) | 0.12.3 | Stateless token auth |
-| Lombok | Latest | Boilerplate reduction |
-| ModelMapper | 3.2.5 | DTO ↔ Entity mapping |
-| SpringDoc OpenAPI | 2.8.14 | Swagger API docs |
-| iTextPDF | 8.0.2 | Invoice PDF generation |
-| Maven | Included | Build tool |
-
-### Frontend
-| Technology | Version | Purpose |
-|---|---|---|
-| React | 19.2.0 | UI framework |
-| Vite | 7.x | Build tool & dev server |
-| React Router DOM | 6.x | Client-side routing |
-| Axios | 1.6.x | HTTP client |
+**Key Features:**
+- 🛍️ Browse & filter handcrafted products by category (Jewelry, Pottery, Paintings, etc.)
+- 🛒 Shopping cart with real-time item management
+- ❤️ Wishlist for saving favorite products
+- 📦 Order placement, tracking, and history
+- 💳 Payment processing with invoice generation (PDF)
+- 🏪 Seller dashboard for product CRUD and payment tracking
+- 📊 Admin dashboard with platform-wide statistics
+- 🔐 JWT-based authentication with role-based access control
 
 ---
 
-## ✨ Features
+## 🛠️ Tech Stack
 
-### 👤 Customer Features
-- ✅ User registration and secure login
-- ✅ Browse craft products and search
-- ✅ Wishlist management (save favourite items)
-- ✅ Shopping cart and checkout
-- ✅ Secure payment processing
-- ✅ View order history and current status
-- ✅ Download PDF invoice for any order
-
-### 🏪 Seller Features
-- ✅ Seller account registration and login
-- ✅ Product listing management (Create, Read, Update, Delete)
-- ✅ View orders received for their products
-- ✅ Seller dashboard with sales overview
-- ✅ Manage product inventory and availability
-
-### 🔧 Admin Features
-- ✅ Secure admin login
-- ✅ Admin dashboard with platform statistics
-- ✅ User management (customers and sellers)
-- ✅ Product moderation and management
-- ✅ Order management and oversight
-- ✅ Payment tracking
-
-### 🔐 Security Features
-- ✅ JWT-based stateless authentication
-- ✅ Role-based access control (RBAC) — Customer / Seller / Admin
-- ✅ BCrypt password encryption
-- ✅ Secure REST API endpoints
-- ✅ CORS configuration for frontend-backend separation
+| Layer       | Technology                        |
+|-------------|-----------------------------------|
+| Frontend    | React 19, Vite 7, React Router 6 |
+| Backend     | Java 21, Spring Boot 3.5.7       |
+| Database    | MySQL 8+                          |
+| Auth        | JWT (jjwt 0.12.3) + Spring Security |
+| ORM         | JPA / Hibernate                   |
+| API Docs    | Swagger UI (SpringDoc OpenAPI)    |
+| PDF Engine  | iText 8                           |
+| Build Tools | Maven (backend), npm (frontend)   |
 
 ---
 
-## 📁 Project Structure
+## 🏗️ Project Architecture
+
+```
+┌─────────────────────┐       HTTP/JSON (REST)       ┌──────────────────────────┐
+│    FRONTEND (SPA)   │ ──────────────────────────▶  │      BACKEND (API)       │
+│   React 19 + Vite   │ ◀──────────────────────────  │  Spring Boot 3.5 (Java)  │
+│   Port: 5173        │     JWT Bearer Token          │  Port: 8080              │
+└─────────────────────┘                               └───────────┬──────────────┘
+                                                                  │ JPA/Hibernate
+                                                                  ▼
+                                                      ┌──────────────────────────┐
+                                                      │       MySQL Database     │
+                                                      │    Schema: crafteva      │
+                                                      │    Port: 3306            │
+                                                      └──────────────────────────┘
+```
+
+**Pattern:** Monolithic REST API with separate SPA frontend. Stateless JWT authentication (no server sessions).
+
+---
+
+## 📁 Folder Structure
 
 ```
 CraftEva/
 ├── crafteva-backend/
-│   └── springboot_backend_template/       # Spring Boot REST API
-│       ├── src/
-│       │   ├── main/
-│       │   │   ├── java/com/crafteva/
-│       │   │   │   ├── config/            # Security, CORS, Swagger config
-│       │   │   │   ├── controller/        # REST Controllers
-│       │   │   │   │   ├── AdminController.java
-│       │   │   │   │   ├── AuthController.java
-│       │   │   │   │   ├── InvoiceController.java
-│       │   │   │   │   ├── OrderController.java
-│       │   │   │   │   ├── OrderItemController.java
-│       │   │   │   │   ├── PaymentController.java
-│       │   │   │   │   └── ProductController.java
-│       │   │   │   ├── dto/               # Data Transfer Objects
-│       │   │   │   ├── entity/            # JPA Entities
-│       │   │   │   ├── exceptions/        # Custom exception handling
-│       │   │   │   ├── repository/        # Data Access Layer
-│       │   │   │   ├── security/          # JWT & Spring Security
-│       │   │   │   └── services/          # Business Logic
-│       │   │   └── resources/
-│       │   │       └── application.properties
-│       │   └── test/
+│   └── springboot_backend_template/
 │       ├── pom.xml
-│       └── README.md
+│       └── src/main/java/com/crafteva/
+│           ├── Application.java              # Entry point
+│           ├── config/SecurityConfig.java     # Security + CORS
+│           ├── controller/                    # REST controllers
+│           │   ├── AuthController.java        #   Login / Register
+│           │   ├── ProductController.java     #   Product CRUD
+│           │   ├── OrderController.java       #   Order management
+│           │   ├── OrderItemController.java   #   Cart items
+│           │   ├── PaymentController.java     #   Payments
+│           │   ├── InvoiceController.java     #   PDF invoices
+│           │   └── AdminController.java       #   Admin dashboard
+│           ├── dto/                           # Data Transfer Objects
+│           ├── entity/                        # JPA entities
+│           │   ├── User.java, Product.java, Order.java
+│           │   ├── OrderItem.java, Payment.java
+│           │   └── Role.java, Category.java (enums)
+│           ├── repository/                    # Spring Data JPA repos
+│           ├── services/                      # Business logic
+│           ├── security/                      # JWT + auth filter
+│           └── exceptions/                    # Error handling
 │
 ├── crafteva_frontend/
-│   └── vite-project/                      # React + Vite Frontend
-│       ├── src/
-│       │   ├── api/                       # API call configurations
-│       │   ├── auth/                      # Auth utilities/guards
-│       │   ├── components/                # Reusable UI components
-│       │   ├── context/                   # React context providers
-│       │   ├── pages/                     # Page-level components
-│       │   │   ├── Home.jsx               # Landing / product browse
-│       │   │   ├── Login.jsx              # Authentication page
-│       │   │   ├── Register.jsx           # User registration
-│       │   │   ├── Cart.jsx               # Shopping cart
-│       │   │   ├── Payment.jsx            # Checkout & payment
-│       │   │   ├── Orders.jsx             # Order listing
-│       │   │   ├── OrderHistory.jsx       # Order history
-│       │   │   ├── Wishlist.jsx           # Saved items
-│       │   │   ├── SellerDashboard.jsx    # Seller management
-│       │   │   ├── AdminDashboard.jsx     # Admin control panel
-│       │   │   └── AboutUs.jsx            # About page
-│       │   ├── service/                   # API service layer
-│       │   ├── App.jsx                    # Root component & routes
-│       │   └── main.jsx                   # App entry point
-│       ├── index.html
+│   └── vite-project/
 │       ├── package.json
-│       ├── vite.config.js
-│       └── README.md
+│       └── src/
+│           ├── App.jsx                        # Routing + providers
+│           ├── api/axios.js                   # API client + JWT interceptor
+│           ├── auth/ProtectedRoute.jsx        # Route guard
+│           ├── context/
+│           │   ├── AuthContext.jsx             # Auth state
+│           │   ├── CartContext.jsx             # Cart state
+│           │   └── WishlistContext.jsx         # Wishlist state
+│           ├── components/
+│           │   ├── common/ (Header, Footer)
+│           │   ├── product/ (ProductCard, ProductList)
+│           │   ├── cart/ (CartItem)
+│           │   └── invoice/ (Invoice)
+│           └── pages/
+│               ├── Home.jsx, Login.jsx, Register.jsx
+│               ├── Cart.jsx, Payment.jsx, Wishlist.jsx
+│               ├── Orders.jsx, OrderHistory.jsx
+│               ├── SellerDashboard.jsx, AdminDashboard.jsx
+│               └── AboutUs.jsx
 │
-├── Logger/                                # Logging utilities
-├── assets/                                # Images, logos, screenshots
-├── Project Report/                        # Project documentation
-├── .gitignore
-├── .vscode/                               # VS Code workspace config
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── DEPLOYMENT.md
-├── DEPLOYMENT_QUICKSTART.md
-├── LICENSE
-├── README.md                              # This file
-└── render.yaml                            # Render.com deployment config
+├── Logger/                  # Separate logging microservice
+├── render.yaml              # Render.com deployment config
+└── README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 🖥️ Frontend
 
-### Prerequisites
+### Overview
 
-Make sure you have the following installed:
+Single-page React application with role-based routing:
 
-| Tool | Version | Download |
-|---|---|---|
-| Java | 21+ | [Download](https://adoptium.net/) |
-| Maven | 3.8+ | [Download](https://maven.apache.org/) |
-| Node.js | 18+ | [Download](https://nodejs.org/) |
-| MySQL | 8.0+ | [Download](https://dev.mysql.com/downloads/) |
-| Git | Latest | [Download](https://git-scm.com/) |
+| Page | Route | Role | Description |
+|------|-------|------|-------------|
+| Home | `/` | Public | Product catalog with category filter |
+| About | `/about` | Public | About CraftEva |
+| Login | `/login` | Public | Email + password login |
+| Register | `/register` | Public | New user registration |
+| Cart | `/cart` | Buyer | Shopping cart management |
+| Wishlist | `/wishlist` | Buyer | Saved products |
+| Orders | `/orders` | Buyer | Active orders |
+| Order History | `/order-history` | Buyer | Completed orders |
+| Payment | `/payment` | Buyer | Checkout & invoice |
+| Seller Dashboard | `/seller` | Seller | Manage products & view payments |
+| Admin Dashboard | `/admin` | Admin | Platform statistics & management |
+
+### State Management
+
+Three React Context providers manage global state:
+- **AuthContext** — JWT token, user session, login/logout (sessionStorage)
+- **CartContext** — Shopping cart tied to backend orders (sessionStorage + API)
+- **WishlistContext** — Local wishlist (localStorage)
 
 ---
 
-### 1. Clone the Repository
+## ⚙️ Backend
+
+### Overview
+
+Layered Spring Boot application following the pattern:
+
+```
+Controller → Service → Repository → Entity → MySQL
+```
+
+- **Spring Security** with JWT-based stateless auth
+- **BCrypt** password hashing
+- **Bean Validation** on all request DTOs
+- **iText 8** for PDF invoice generation
+- **Swagger UI** auto-generated API docs
+
+---
+
+## 🔌 API Endpoints
+
+### Authentication (Public)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/register` | Register new user |
+| POST | `/api/auth/login` | Login → JWT token |
+
+### Products (Read=Public, Write=Auth)
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/products` | List all products | No |
+| POST | `/api/products` | Add product | SELLER |
+| PUT | `/api/products/{id}` | Update product | SELLER |
+| DELETE | `/api/products/{id}` | Delete product | SELLER |
+
+### Orders
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/orders/add` | Place order | BUYER |
+| GET | `/api/orders/buyer/{buyerId}` | My orders | BUYER |
+| GET | `/api/orders/history/{buyerId}` | Order history | BUYER |
+| PUT | `/api/orders/cancel/{id}` | Cancel order | BUYER |
+
+### Cart (Order Items)
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/order-items/add` | Add to cart | BUYER |
+| GET | `/api/order-items/order/{orderId}` | View cart | BUYER |
+| DELETE | `/api/order-items/{id}` | Remove item | BUYER |
+
+### Payments
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/payments` | Make payment | BUYER |
+| GET | `/api/payments/seller/{sellerId}` | Seller payments | SELLER |
+
+### Admin
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/admin/dashboard` | Stats | ADMIN |
+| GET | `/api/admin/users` | All users | ADMIN |
+| DELETE | `/api/admin/users/{id}` | Delete user | ADMIN |
+| GET | `/api/admin/orders` | All orders | ADMIN |
+| GET | `/api/admin/payments` | All payments | ADMIN |
+
+### Invoices
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/invoices/order/{orderId}` | Download PDF | BUYER |
+
+---
+
+## 🗄️ Database Schema
+
+```
+users                        products                     orders
+┌──────────────────┐         ┌──────────────────┐         ┌──────────────────┐
+│ user_id (PK)     │◀──┐     │ product_id (PK)  │         │ order_id (PK)    │
+│ user_name        │   │     │ product_name     │    ┌───▶│ buyer_id (FK)    │
+│ user_email       │   ├─────│ seller_id (FK)   │    │    │ order_date       │
+│ user_password    │   │     │ description      │    │    │ status (ENUM)    │
+│ mobile_no        │   │     │ price            │    │    │ total_amount     │
+│ user_address     │   │     │ image_URL        │    │    └────────┬─────────┘
+│ role (ENUM)      │───┘     │ category (ENUM)  │    │             │
+└──────────────────┘         └──────────────────┘    │    order_items
+        │                                            │    ┌──────────────────┐
+        │ (as buyer)                                 │    │ order_item_id(PK)│
+        └────────────────────────────────────────────┘    │ order_id (FK)    │
+                                                          │ product_id (FK)  │
+payment                                                   │ quantity         │
+┌──────────────────┐                                      │ price            │
+│ payment_id (PK)  │                                      └──────────────────┘
+│ amount           │
+│ payment_status   │
+│ transaction_id   │
+│ payment_date     │
+│ order_id (FK)    │
+│ seller_id (FK)   │
+└──────────────────┘
+```
+
+**Enums:** `Role` (BUYER, SELLER, ADMIN) · `OrderStatus` (PLACED, SHIPPED, DELIVERED, CANCELLED) · `PaymentStatus` (SUCCESS, FAILED, PENDING) · `Category` (HANDMADE_JEWELRY, HOME_DECOR, POTTERY, PAPER_CRAFT, PAINTINGS, FASHION_ACCESSORIES)
+
+---
+
+## ⚙️ Setup & Installation
+
+### Prerequisites
+
+| Tool | Version |
+|------|---------|
+| [Java JDK](https://adoptium.net/) | 21+ |
+| [Node.js](https://nodejs.org/) | 18+ |
+| [MySQL](https://dev.mysql.com/downloads/) | 8+ |
+| [Maven](https://maven.apache.org/) | 3.9+ (or use included wrapper) |
+| [Git](https://git-scm.com/) | Latest |
+
+### Clone the Repository
 
 ```bash
 git clone https://github.com/Unnatideshmukh113/CraftEva.git
 cd CraftEva
 ```
 
----
+### Install Dependencies
 
-### 2. Backend Setup
-
+**Backend:**
 ```bash
 cd crafteva-backend/springboot_backend_template
+./mvnw clean install -DskipTests     # Linux/Mac
+mvnw.cmd clean install -DskipTests   # Windows
 ```
 
-**Create a MySQL database:**
-
-```sql
-CREATE DATABASE crafteva_db;
-```
-
-**Configure `src/main/resources/application.properties`:**
-
-```properties
-# Database
-spring.datasource.url=jdbc:mysql://localhost:3306/crafteva_db
-spring.datasource.username=your_mysql_username
-spring.datasource.password=your_mysql_password
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=false
-
-# JWT
-jwt.secret=your_jwt_secret_key_at_least_256_bits
-jwt.expiration=86400000
-
-# Server
-server.port=8080
-```
-
-**Run the backend:**
-
-```bash
-# Windows
-mvnw.cmd spring-boot:run
-
-# Linux / macOS
-./mvnw spring-boot:run
-```
-
-✅ Backend starts at: **http://localhost:8080**
-📖 Swagger UI: **http://localhost:8080/swagger-ui/index.html**
-
----
-
-### 3. Frontend Setup
-
-Open a new terminal:
-
+**Frontend:**
 ```bash
 cd crafteva_frontend/vite-project
 npm install
+```
+
+---
+
+## 🔐 Environment Variables
+
+Configure in `crafteva-backend/springboot_backend_template/src/main/resources/application.properties`:
+
+```properties
+# Database
+spring.datasource.url=jdbc:mysql://localhost:3306/crafteva?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+spring.datasource.username=root
+spring.datasource.password=root
+
+# JWT
+jwt.secret=YOUR_SECRET_KEY_HERE
+jwt.expiration=86400000
+```
+
+> ⚠️ **For production:** Use environment variables instead of hardcoded values.
+
+---
+
+## 🚀 How to Run
+
+### 1. Start MySQL
+Ensure MySQL is running on `localhost:3306`. The database `crafteva` will be auto-created.
+
+### 2. Start Backend
+```bash
+cd crafteva-backend/springboot_backend_template
+mvnw.cmd spring-boot:run
+```
+✅ Backend: **http://localhost:8080**
+📖 Swagger: **http://localhost:8080/swagger-ui.html**
+
+### 3. Start Frontend
+```bash
+cd crafteva_frontend/vite-project
 npm run dev
 ```
-
-✅ Frontend starts at: **http://localhost:5173**
+✅ Frontend: **http://localhost:5173**
 
 ---
 
-## 🔐 Authentication Flow
+## 🔄 Data Flow
 
 ```
-1. User registers / logs in → POST /api/auth/register or /api/auth/login
-2. Server validates credentials → Returns JWT token
-3. Client stores token (localStorage / sessionStorage)
-4. All subsequent requests include: Authorization: Bearer <token>
-5. Spring Security filter validates token and sets security context
-6. Role-based access enforced per endpoint (CUSTOMER / SELLER / ADMIN)
+User clicks "Add to Cart"
+        │
+        ▼
+  ProductCard.jsx (Frontend)
+  → CartContext.addToCart()
+        │
+        ├──▶ POST /api/orders/add         (creates cart order in DB)
+        │         ↓
+        │    OrderController → OrderService → MySQL
+        │
+        └──▶ POST /api/order-items/add    (adds product to order)
+                  ↓
+             OrderItemController → OrderItemService → MySQL
+                  ↓
+             GET /api/order-items/order/{id}  (refresh cart)
+                  ↓
+             JSON response → CartContext state → Header re-renders
+                  ↓
+             User sees updated cart count ✅
 ```
 
-**Roles:**
-| Role | Access |
-|---|---|
-| `CUSTOMER` | Browse products, cart, orders, wishlist, payments |
-| `SELLER` | All customer access + seller dashboard, product management |
-| `ADMIN` | Full platform access, user & product administration |
+---
+
+## 📸 Screenshots
+
+> Screenshots can be added in the `/assets` folder and referenced here.
+
+| Page | Description |
+|------|-------------|
+| Home | Product catalog with category filter |
+| Login / Register | Authentication forms |
+| Cart | Shopping cart with item management |
+| Payment | Checkout flow with invoice |
+| Seller Dashboard | Product CRUD & payment tracking |
+| Admin Dashboard | Platform statistics |
 
 ---
 
-## 📖 API Documentation
+## 👨‍💻 Contributors
 
-Full interactive API docs available via Swagger UI once the backend is running:
-
-🔗 **http://localhost:8080/swagger-ui/index.html**
-
-**Key API Endpoints:**
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/auth/register` | Register new user |
-| `POST` | `/api/auth/login` | Login & get JWT token |
-| `GET` | `/api/products` | List all products |
-| `POST` | `/api/products` | Create product (Seller) |
-| `GET` | `/api/orders` | Get user's orders |
-| `POST` | `/api/orders` | Place new order |
-| `GET` | `/api/payments` | View payment history |
-| `POST` | `/api/payments` | Process payment |
-| `GET` | `/api/invoice/{orderId}` | Download PDF invoice |
-| `GET` | `/api/admin/**` | Admin operations |
+| Name | Role | GitHub |
+|------|------|--------|
+| Unnati Deshmukh | Full Stack Developer | [@Unnatideshmukh113](https://github.com/Unnatideshmukh113) |
 
 ---
 
-## 🌐 Deployment
+## 📄 License
 
-See the full deployment guides:
-
-- 📄 **[DEPLOYMENT.md](DEPLOYMENT.md)** — Detailed step-by-step guide for Render, Vercel, and Netlify
-- ⚡ **[DEPLOYMENT_QUICKSTART.md](DEPLOYMENT_QUICKSTART.md)** — Quick 5-step deployment
-
-**Supported Platforms:**
-- Backend → [Render](https://render.com) (JAR deployment) or any Java-compatible cloud
-- Frontend → [Vercel](https://vercel.com) or [Netlify](https://netlify.com)
-- Database → [PlanetScale](https://planetscale.com) / [Aiven](https://aiven.io) / [Railway](https://railway.app)
+This project is built as part of the **DAC (Diploma in Advanced Computing)** program.
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit your changes: `git commit -m "feat: add your feature"`
-4. Push to the branch: `git push origin feature/your-feature`
-5. Open a Pull Request
-
----
-
-## 👥 Author
-
-**Unnati Deshmukh**  
-GitHub: [@Unnatideshmukh113](https://github.com/Unnatideshmukh113)
-
-
-
-<div align="center">
-Made with ❤️ by <a href="https://github.com/Unnatideshmukh113">Unnatideshmukh113</a>
-</div>
+*Made with ❤️ by the CraftEva Team*
